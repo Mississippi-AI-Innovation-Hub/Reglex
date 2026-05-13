@@ -1,2 +1,2 @@
 # Reglex
-Secretary of State statute and regulatory research assistant 
+Proof of Concept (POC) aimed at augmenting staff capabilities, enhancing key elements of regulatory review, and improving the accuracy and efficiency of compliance assessments. 
