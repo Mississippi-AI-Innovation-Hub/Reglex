@@ -1,0 +1,33 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DynamoDBJobsTable",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:Query"
+      ],
+      "Resource": "arn:aws:dynamodb:us-east-1:123456789012:table/ms-sos-query-jobs"
+    },
+    {
+      "Sid": "LambdaSelfInvoke",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "arn:aws:lambda:us-east-1:123456789012:function:ms-sos-legal-v2"
+    },
+    {
+      "Sid": "TextractAccess",
+      "Effect": "Allow",
+      "Action": [
+        "textract:DetectDocumentText",
+        "textract:AnalyzeDocument"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

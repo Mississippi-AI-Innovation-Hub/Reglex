@@ -1,0 +1,1918 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SoS Internal Engineering Docs · v1</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+<style>
+:root {
+  --bg:        #0d1117;
+  --bg-2:      #161b22;
+  --bg-3:      #1c2128;
+  --border:    #30363d;
+  --border-2:  #21262d;
+  --fg:        #c9d1d9;
+  --fg-mute:   #8b949e;
+  --fg-dim:    #6e7681;
+  --accent:    #58a6ff;
+  --accent-2:  #79c0ff;
+  --green:     #7ee787;
+  --green-2:   #3fb950;
+  --amber:     #d29922;
+  --red:       #f85149;
+  --purple:    #d2a8ff;
+  --code-bg:   #161b22;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────── */
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(13, 17, 23, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+.app-header .brand {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+}
+.app-header .brand .dot {
+  color: var(--green);
+  margin: 0 0.4em;
+}
+.app-header .meta {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--fg-mute);
+  font-size: 12px;
+}
+.app-header .kbd {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  padding: 1px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--bg-2);
+  color: var(--fg-mute);
+  margin-left: 0.4em;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - 44px);
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────── */
+
+.sidebar {
+  position: sticky;
+  top: 44px;
+  align-self: start;
+  height: calc(100vh - 44px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  padding: 1.25rem 0.75rem 2rem 1.25rem;
+  font-size: 13.5px;
+}
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.sidebar input.toc-filter {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.4rem 0.6rem;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: 13px;
+  margin-bottom: 1rem;
+}
+.sidebar input.toc-filter::placeholder { color: var(--fg-dim); }
+.sidebar input.toc-filter:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.toc { list-style: none; padding: 0; margin: 0; }
+.toc > li { margin-bottom: 0.6rem; }
+.toc-l1 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  color: var(--fg);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.toc-l1:hover { background: var(--bg-2); color: var(--accent); }
+.toc-l1.active { background: var(--bg-3); color: var(--accent); }
+.toc-l1 .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--fg-dim);
+  min-width: 16px;
+}
+.toc-l1.active .num { color: var(--accent); }
+
+.toc-sub {
+  list-style: none;
+  padding: 0.25rem 0 0.25rem 1.6rem;
+  margin: 0;
+  border-left: 1px solid var(--border-2);
+  margin-left: 0.6rem;
+}
+.toc-sub li { margin: 0.05rem 0; }
+.toc-sub a {
+  display: block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  color: var(--fg-mute);
+  text-decoration: none;
+  font-size: 12.5px;
+  border-left: 2px solid transparent;
+  margin-left: -2px;
+}
+.toc-sub a:hover { color: var(--fg); }
+.toc-sub a.active { color: var(--accent); border-left-color: var(--accent); }
+
+/* ── Main column ────────────────────────────────────────────────────── */
+
+main {
+  padding: 2.5rem 3rem 6rem 3rem;
+  max-width: 920px;
+  margin: 0 auto;
+  width: 100%;
+  scroll-padding-top: 60px;
+}
+
+main h2 {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 0 0 0.4rem 0;
+  letter-spacing: -0.01em;
+  scroll-margin-top: 60px;
+}
+main h2 .sec-num {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--fg-dim);
+  font-size: 0.6em;
+  font-weight: 500;
+  margin-right: 0.6em;
+}
+main h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 2.5rem 0 0.5rem 0;
+  letter-spacing: -0.005em;
+  scroll-margin-top: 60px;
+}
+main h3:first-of-type { margin-top: 1.5rem; }
+main h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 1.5rem 0 0.4rem 0;
+  color: var(--fg);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+main p { margin: 0.5rem 0 1rem 0; }
+main p, main li { color: var(--fg); }
+main strong { color: #fff; font-weight: 600; }
+main a { color: var(--accent); text-decoration: none; }
+main a:hover { text-decoration: underline; }
+
+main .last-verified {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  border-bottom: 1px solid var(--border-2);
+  padding-bottom: 0.6rem;
+  margin: 0.4rem 0 1.5rem 0;
+}
+main .last-verified .label { color: var(--green-2); }
+
+main hr {
+  border: none;
+  border-top: 1px solid var(--border-2);
+  margin: 4rem 0 2rem 0;
+}
+
+/* Lists */
+main ul, main ol {
+  padding-left: 1.4rem;
+  margin: 0.5rem 0 1rem 0;
+}
+main li { margin: 0.3rem 0; }
+main li > code, main p > code {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875em;
+  background: var(--bg-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  border: 1px solid var(--border-2);
+  color: var(--accent-2);
+}
+
+/* Code blocks */
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  margin: 0.8rem 0 1.4rem 0;
+}
+pre code { background: none; border: none; padding: 0; font-size: inherit; }
+pre.ascii {
+  background: var(--bg-2);
+  color: var(--fg-mute);
+  border: 1px dashed var(--border);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+/* Section template marker */
+.block-label {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--green-2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 2px 8px;
+  border: 1px solid #1f3d2c;
+  background: rgba(63, 185, 113, 0.06);
+  border-radius: 3px;
+  margin-right: 0.6rem;
+  vertical-align: middle;
+}
+
+/* File pointer */
+.fileref {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12.5px;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 8px;
+  color: var(--accent-2);
+}
+.fileref::before { content: '📁'; margin-right: 0.4em; opacity: 0.8; font-size: 0.95em; }
+
+.code-map {
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.8rem 1rem;
+  margin: 0.8rem 0 1.4rem 0;
+}
+.code-map table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.code-map td {
+  padding: 0.4rem 0.6rem;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-2);
+}
+.code-map tr:last-child td { border-bottom: none; }
+.code-map td.sym {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent-2);
+  white-space: nowrap;
+  width: 1%;
+}
+.code-map td.path {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px;
+  color: var(--fg-dim);
+  white-space: nowrap;
+  width: 1%;
+}
+.code-map td.desc { color: var(--fg); }
+
+/* Callouts */
+.callout {
+  border-left: 3px solid;
+  background: var(--bg-2);
+  padding: 0.7rem 1rem;
+  margin: 1rem 0 1.2rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 14px;
+}
+.callout .label {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-right: 0.6em;
+}
+.callout p { margin: 0.2rem 0; }
+.callout p + p { margin-top: 0.5rem; }
+.cl-note     { border-color: var(--accent); }
+.cl-note .label     { color: var(--accent); }
+.cl-warning  { border-color: var(--amber); }
+.cl-warning .label  { color: var(--amber); }
+.cl-gotcha   { border-color: var(--red); }
+.cl-gotcha .label   { color: var(--red); }
+.cl-decision { border-color: var(--purple); }
+.cl-decision .label { color: var(--purple); }
+
+/* Inline tables */
+.tbl {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  margin: 0.8rem 0 1.4rem 0;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.tbl th, .tbl td {
+  padding: 0.5rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-2);
+}
+.tbl th {
+  background: var(--bg-3);
+  color: var(--fg);
+  font-weight: 600;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+}
+.tbl tr:last-child td { border-bottom: none; }
+.tbl td.num { font-family: 'JetBrains Mono', monospace; }
+
+/* Misc */
+.dim  { color: var(--fg-mute); }
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+/* Print stylesheet */
+@media print {
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .app-header, .sidebar { display: none; }
+  .layout { display: block; }
+  main { max-width: none; padding: 0; }
+  pre, .code-map, .callout, .tbl { background: #f6f8fa; border-color: #d0d7de; color: #000; }
+  pre, pre code { color: #000; }
+  main a { color: #0969da; text-decoration: underline; }
+  main h2, main h3, main h4 { color: #000; page-break-after: avoid; }
+  pre, .callout, .code-map, .tbl { page-break-inside: avoid; }
+  .fileref { background: #f6f8fa; color: #0550ae; }
+  .block-label { color: #1a7f37; border-color: #d0d7de; background: #ddf4e4; }
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  main { padding: 2rem 1.5rem 4rem 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">SoS Internal Engineering Docs <span class="dot">·</span> v1</div>
+  <div class="meta">
+    <span>Mississippi Secretary of State PoC</span>
+    <span class="kbd">⌘K</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <input class="toc-filter" id="tocFilter" type="text" placeholder="Filter sections… (⌘K)" />
+    <ul class="toc" id="toc">
+      <li>
+        <a class="toc-l1" href="#sec-1"><span class="num">01</span>System Overview</a>
+        <ul class="toc-sub">
+          <li><a href="#s1-arch">Architecture map</a></li>
+          <li><a href="#s1-lifecycle">Query lifecycle</a></li>
+          <li><a href="#s1-two-paths">Two execution paths</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-2"><span class="num">02</span>Phase 1 — MS Pilot</a>
+        <ul class="toc-sub">
+          <li><a href="#s2-source">Source documents</a></li>
+          <li><a href="#s2-ingest">Ingestion</a></li>
+          <li><a href="#s2-index">OpenSearch index</a></li>
+          <li><a href="#s2-handler">Lambda handler</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-3"><span class="num">03</span>Phase 2 — Multi-State</a>
+        <ul class="toc-sub">
+          <li><a href="#s3-v2">V2 metadata model</a></li>
+          <li><a href="#s3-orchestrator">Multi-agent orchestrator</a></li>
+          <li><a href="#s3-hybrid">Hybrid search (kNN+BM25+RRF)</a></li>
+          <li><a href="#s3-routing">Index routing &amp; states</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-4"><span class="num">04</span>Web Crawling</a>
+        <ul class="toc-sub">
+          <li><a href="#s4-targets">21 targets</a></li>
+          <li><a href="#s4-pattern">2-tier crawl pattern</a></li>
+          <li><a href="#s4-specialized">Specialized crawlers</a></li>
+          <li><a href="#s4-manifest">Manifest &amp; diff</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-5"><span class="num">05</span>Ingestion Package</a>
+        <ul class="toc-sub">
+          <li><a href="#s5-modules">Module map</a></li>
+          <li><a href="#s5-extract">Extraction pipeline</a></li>
+          <li><a href="#s5-lease">Lease ledger</a></li>
+          <li><a href="#s5-sso">SSO &amp; resume</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-6"><span class="num">06</span>Frontend</a>
+        <ul class="toc-sub">
+          <li><a href="#s6-stack">Stack &amp; structure</a></li>
+          <li><a href="#s6-async">Async polling</a></li>
+          <li><a href="#s6-trust">Trust surfaces</a></li>
+          <li><a href="#s6-research">Research views</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-7"><span class="num">07</span>Evaluation</a>
+        <ul class="toc-sub">
+          <li><a href="#s7-rubric">4-axis rubric</a></li>
+          <li><a href="#s7-pilot">Pilot results</a></li>
+          <li><a href="#s7-limits">Limitations</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-8"><span class="num">08</span>AWS Infra &amp; Cost</a>
+        <ul class="toc-sub">
+          <li><a href="#s8-services">Services map</a></li>
+          <li><a href="#s8-models">Bedrock model access</a></li>
+          <li><a href="#s8-spend">Verified spend</a></li>
+        </ul>
+      </li>
+      <li>
+        <a class="toc-l1" href="#sec-9"><span class="num">09</span>Operational Notes</a>
+        <ul class="toc-sub">
+          <li><a href="#s9-deploy">Deploy scripts</a></li>
+          <li><a href="#s9-iam">IAM &amp; SSO</a></li>
+          <li><a href="#s9-known">Known issues</a></li>
+          <li><a href="#s9-gotchas">Gotchas reference</a></li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+
+  <main>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 1 — System Overview
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-1">
+    <h2><span class="sec-num">01</span>System Overview &amp; Query Lifecycle</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3 id="s1-arch"><span class="block-label">Purpose</span>What this system is</h3>
+
+    <p>The SoS PoC is a <strong>retrieval-augmented question answering system</strong> over state-government regulatory documents. Phase 1 covers Mississippi only; Phase 2 extends the same architecture to seven Southeastern states across three agency types (medical, dental, real estate). The goal is to let SoS staff ask plain-English questions like <em>"How does Tennessee's barber reciprocity compare to Mississippi's?"</em> and get answers grounded in cited statutes and regulations — never hallucinated, with explicit inference markers when the model has to extrapolate.</p>
+
+    <h3 id="s1-arch"><span class="block-label">How it works</span>Architecture map</h3>
+
+    <pre class="ascii">┌────────────────────┐         ┌──────────────────────────────────────────────┐
+│  React/Vite UI     │  HTTPS  │   API Gateway                                │
+│  (chat + research) │ ──────▶ │   POST /v2/query     → 202 + job_id          │
+│                    │ ◀────── │   GET  /v2/query/status/{id} → result        │
+└────────────────────┘         └────────────┬─────────────────────────────────┘
+                                            │ (sync + async self-invoke)
+                                            ▼
+                               ┌──────────────────────────────────────────────┐
+                               │   Lambda: ms-sos-legal-v2                    │
+                               │   ───────────────────────────                │
+                               │   1. POST → enqueue DynamoDB job, return 202 │
+                               │   2. Self-invoke async with _async_job_id    │
+                               │   3. Heavy work: search → LLM → write result │
+                               │   4. GET → read DynamoDB                     │
+                               └────┬─────────────────────────────────┬───────┘
+                                    │                                 │
+                              get_embedding                   call_bedrock_llm
+                                    │                                 │
+                                    ▼                                 ▼
+                       ┌────────────────────────┐          ┌────────────────────────┐
+                       │  Bedrock Runtime       │          │  Bedrock Converse API  │
+                       │  Titan Embed Text v2   │          │  Mistral L3 / Nova Pro │
+                       │  (1024-dim, normalized)│          │  / Kimi / Nemotron     │
+                       └────────────────────────┘          └────────────────────────┘
+                                    │
+                                    ▼
+                       ┌────────────────────────────────────────────┐
+                       │  OpenSearch Managed                        │
+                       │  ──────────────────                        │
+                       │  ms-phase1-legal       (Phase 1, MS only)  │
+                       │  multistate-phase2-legal  (Phase 2, 7 st.) │
+                       │                                            │
+                       │  Hybrid: kNN + BM25 + RRF (k=60)           │
+                       │  Dual records: document + page             │
+                       └────────────────────────────────────────────┘
+
+                                    ▲ (offline ingestion)
+                                    │
+   ┌──────────────────────┐   ┌─────┴───────────────────┐   ┌─────────────────────┐
+   │  Web Crawlers        │   │  Ingestion Pipeline     │   │  AWS Services       │
+   │  21 targets,         │──▶│  PyMuPDF → Textract OCR │──▶│  Textract (OCR +    │
+   │  2-tier pattern      │   │  → table extract        │   │   table extract)    │
+   │  (backend/crawlers)  │   │  → Mistral compress (3) │   │  S3 (PDFs + cache)  │
+   └──────────────────────┘   │  → Titan embed          │   │  Bedrock (LLM+emb)  │
+                              │  → bulk index           │   └─────────────────────┘
+                              └─────────────────────────┘</pre>
+
+    <h3 id="s1-lifecycle"><span class="block-label">How it works</span>Query lifecycle (one request, end-to-end)</h3>
+
+    <p>Following one user query — <em>"What is the renewal fee for a Mississippi notary license?"</em> — through the full system:</p>
+
+    <ol>
+      <li><strong>Frontend</strong> calls <code>ChatService.sendMessage()</code> which POSTs <code>{query, filters, history, mode}</code> to <code>/v2/query</code>.</li>
+      <li><strong>Lambda (sync portion)</strong> receives the POST, creates a DynamoDB job row with status <code>pending</code>, then self-invokes asynchronously with <code>InvocationType='Event'</code> and returns <code>202 + job_id</code> immediately. This is the workaround for API Gateway's hard 29-second timeout.</li>
+      <li><strong>Frontend</strong> begins polling <code>GET /v2/query/status/{job_id}</code> every 2 seconds (5-minute total budget).</li>
+      <li><strong>Lambda (async portion)</strong> picks up the event, calls <code>_process_query()</code>:
+        <ul>
+          <li><code>detect_intent()</code> classifies the query as <code>general | comparison | reciprocity | term_count</code> via keyword patterns.</li>
+          <li><code>resolve_model_id()</code> maps the frontend-selected model key to a Bedrock model ID (allowlisted server-side).</li>
+          <li>If <code>mode == 'chat'</code>, search is locked to the Phase 1 index and Mississippi. Otherwise it goes to the Phase 2 index with state filters.</li>
+          <li><code>search_pages()</code> fires <strong>two concurrent OpenSearch queries</strong>: kNN against <code>text_embedding</code> and BM25 across nine boosted text fields. Results merged via RRF (k=60), top_k returned.</li>
+          <li><code>format_context()</code> renders the hits as a structured plaintext context block.</li>
+          <li><code>call_bedrock_llm()</code> invokes Bedrock Converse with the SYSTEM_PROMPT (strict grounding rules) and the assembled context.</li>
+        </ul>
+      </li>
+      <li><strong>Lambda (async)</strong> writes <code>{status: 'done', answer, citations, intent, metadata}</code> to DynamoDB. TTL = 1 hour.</li>
+      <li><strong>Frontend</strong>'s next poll returns the result. The UI renders the answer with inline citations, the grounding pill (green if all claims grounded, amber if any inferences), and the citation panel.</li>
+    </ol>
+
+    <h3 id="s1-two-paths"><span class="block-label">Key decisions</span>Two execution paths (this is important)</h3>
+
+    <p>There are <strong>two parallel codepaths</strong> in this repo that both serve queries. Knowing which one is live in production matters:</p>
+
+    <ul>
+      <li><strong>Path A — <code>lambda_handler.py</code> at the repo root</strong> <em>(this is what's deployed)</em>. Single-file handler. Intent detection via regex/keywords. Hybrid search inline. Routes between Phase 1 and Phase 2 indexes by UI mode. The async + DynamoDB job pattern lives here.</li>
+      <li><strong>Path B — <code>backend/agents/</code> multi-agent orchestrator</strong> <em>(designed but not the primary deploy target)</em>. LLM-based 9-way intent classifier in <code>query_classifier.py</code>. Each intent routes to a dedicated agent class (<code>ComparisonAgent</code>, <code>FeeAnalysisAgent</code>, <code>AuthorityAgent</code>, etc.). The <code>ReflectionAgent</code> for post-hoc claim verification lives here. Lambda entry: <code>backend/agents/lambdas/orchestrator_handler.py</code>.</li>
+    </ul>
+
+    <div class="callout cl-decision">
+      <p><span class="label">Decision</span>Path A is what powers the demo. Path B is the full-fat architecture that the eval-improvement work would activate. They share the same OpenSearch indexes and the same hybrid-search formula, so swapping is non-breaking. The orchestrator agents are <em>more</em> sophisticated (per-intent prompts, structured metadata responses), but the pilot runs Path A because it's simpler to deploy and iterate during the PoC.</p>
+    </div>
+
+    <h3><span class="block-label">Code map</span>Where the entry points live</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">lambda_handler</td>
+          <td class="path">lambda_handler.py:536</td>
+          <td class="desc">Path A entry — sync (POST→202), status check, async worker dispatch</td>
+        </tr>
+        <tr>
+          <td class="sym">_process_query</td>
+          <td class="path">lambda_handler.py:704</td>
+          <td class="desc">Heavy work — search + LLM. Returns <code>{answer, citations, intent, metadata}</code></td>
+        </tr>
+        <tr>
+          <td class="sym">Orchestrator.process</td>
+          <td class="path">backend/agents/orchestrator.py:122</td>
+          <td class="desc">Path B entry — classifies intent, routes to agent, optional reflection</td>
+        </tr>
+        <tr>
+          <td class="sym">IngestionPipeline.run</td>
+          <td class="path">ingestion/pipeline.py:238</td>
+          <td class="desc">Offline ingestion — claim batches via lease, process, index</td>
+        </tr>
+        <tr>
+          <td class="sym">BaseCrawler.crawl</td>
+          <td class="path">backend/crawlers/base_crawler.py:299</td>
+          <td class="desc">Offline crawl — discover links, download files, return manifest entries</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Things that confuse first readers</h3>
+
+    <ul>
+      <li><strong>Two paths look like duplication.</strong> They are. Path A is the production handler; Path B is the design we'd activate for the post-hoc reflection capability and per-intent agents. Don't delete either without understanding which the live API points at.</li>
+      <li><strong>Sync vs async.</strong> All real queries take the async path because Mistral L3 + multi-state context can blow past 29s. Setting <code>{"sync": true}</code> in the body forces sync — useful for debugging from <code>test_lambda.py</code>, never used by the frontend.</li>
+      <li><strong>The "embedding" field name differs.</strong> Path A indexes use <code>text_embedding</code> (1024-dim Titan). The legacy Sagemaker code uses <code>embedding_vector</code>. The mismatch matters when running the orchestrator agents (Path B) against the Phase 2 index — see <code>_search_helpers.py:62</code>.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 2 — Phase 1 Mississippi Pilot
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-2">
+    <h2><span class="sec-num">02</span>Phase 1 — Mississippi Pilot</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>What Phase 1 ships</h3>
+
+    <p>Phase 1 was the original PoC scope: a Mississippi-only RAG system over the MS Administrative Code, with a single search index, a single chat-style UI, and grounded-citation answers. Everything Phase 2 builds on — the ingestion pipeline, the Lambda handler shape, the OpenSearch index design, the trust surfaces — first shipped here.</p>
+
+    <h3 id="s2-source"><span class="block-label">How it works</span>Source documents</h3>
+
+    <p>Documents come from the <strong>Mississippi Secretary of State's Administrative Code search portal</strong>. The crawl uses a POST-based API rather than HTML scraping — the portal exposes a JSON-style endpoint that takes an <code>agency_id</code> and returns a list of PDF URLs in the <code>ACCode/</code> directory. Three agency IDs cover the Phase 1 scope (medical licensure, real estate commission, dental examiners). PDFs land in S3 under <code>s3://ms-sos-legal-documents/source-documents/</code>.</p>
+
+    <h3 id="s2-ingest"><span class="block-label">How it works</span>Ingestion pipeline</h3>
+
+    <p>End-to-end, one PDF goes through this sequence (the offline pipeline runs locally on Bibas's laptop with SSO, not on Lambda):</p>
+
+    <pre class="ascii">PDF in S3
+   │
+   ▼
+┌────────────────┐    PyMuPDF        ┌──────────────────┐
+│ extract_pages  │ ────────────────▶ │ list[{page, text}]│
+└────────────────┘                   └─────────┬────────┘
+                                               │
+                  ┌────────────────────────────┴────────────────────┐
+                  │                                                 │
+       page has no text                                  page has text
+                  │                                                 │
+                  ▼                                                 ▼
+       ┌──────────────────┐                         ┌──────────────────────┐
+       │ render_page_image│                         │ is_table_page() ?    │
+       │ (PNG @ 200 DPI)  │                         └─────────┬────────────┘
+       └────────┬─────────┘                                   │
+                ▼                                       yes ──┤── no
+       ┌──────────────────┐                                   ▼
+       │ textract_ocr()   │                         ┌──────────────────┐
+       │ detect_document  │                         │ render + textract│
+       │ _text            │                         │ _extract_tables  │
+       └────────┬─────────┘                         │ → format_tables  │
+                ▼                                   │ _as_text         │
+        page text fixed                             │ append to text   │
+                                                    └──────────────────┘
+
+  ── For all pages with text ──────────────────────────────────────────
+
+       ┌────────────────────────────────────┐
+       │ is_low_value_page() ?              │  (skip LLM if text < 80
+       │   title / blank / TOC / cover      │   chars or &lt; 30 alpha)
+       └────┬────────────────────────┬──────┘
+            │ yes                    │ no
+            ▼                        ▼
+    raw text only,         ┌──────────────────────────┐
+    still embedded         │ batch into groups of 3   │
+                           │ → call_mistral_batch()   │
+                           │ (cost: $0.012 / batch)   │
+                           │ returns extracted fields │
+                           └─────────────┬────────────┘
+                                         ▼
+                           ┌──────────────────────────┐
+                           │ get_text_embedding()     │
+                           │ Titan Text v2 (1024-dim) │
+                           │ → text_embedding field   │
+                           └─────────────┬────────────┘
+                                         ▼
+                  ┌─────────────────────────────────────┐
+                  │ bulk_index(50 records/chunk)        │
+                  │ ─────────────────────────────────── │
+                  │ 1 document record (full text, no    │
+                  │   embedding) for term-frequency     │
+                  │ N page records (extracted + embed)  │
+                  │   for hybrid search                 │
+                  └─────────────────────────────────────┘</pre>
+
+    <h4>Why dual records (document + page)?</h4>
+
+    <p>Most page records are what powers Q&amp;A — they have the embedding, the structured extraction (statute_codes, fee_amounts, license_categories…), and the abstract text. But "term-frequency" intent ("how many times does <em>reciprocity</em> appear in the corpus?") needs to count occurrences across full document text, not snippet-by-snippet. Holding the full <code>full_text</code> on a sibling <code>record_type=document</code> record lets the term-count query use OpenSearch's scroll API on documents while the search query stays on pages. Both record types live in the same index, distinguished by the <code>record_type</code> keyword field.</p>
+
+    <div class="callout cl-decision">
+      <p><span class="label">Decision</span>The dual-record design saves us from running two indexes for two query patterns. Cost: every document is stored twice (full text plus per-page slices). For our corpus size (~1k–5k documents per phase), the duplicated storage is negligible compared to the operational simplicity.</p>
+    </div>
+
+    <h3 id="s2-index"><span class="block-label">How it works</span>OpenSearch index design</h3>
+
+    <p>Single index per phase:</p>
+
+    <ul>
+      <li><strong><code>ms-phase1-legal</code></strong> — Phase 1, Mississippi only.</li>
+      <li><strong><code>multistate-phase2-legal</code></strong> — Phase 2, all 7 states.</li>
+    </ul>
+
+    <p>Both share the same mapping (defined in <code>ingestion/index_manager.py:26</code>). Highlights:</p>
+
+    <ul>
+      <li><strong>kNN enabled</strong> with <code>ef_search=512</code>; the embedding field is HNSW with <code>cosinesimil</code>, <code>ef_construction=512</code>, <code>m=16</code>, FAISS engine, 1024 dimensions.</li>
+      <li><strong>Custom <code>legal_analyzer</code></strong> = standard tokenizer + lowercase + stop. Applied to <code>raw_text</code>, <code>abstract_text</code>, <code>core_rule</code>, <code>compliance_requirements</code>, <code>testing_requirements</code>, <code>reciprocity_provisions</code>, <code>full_text</code>.</li>
+      <li><strong><code>fee_amounts</code> is a <em>nested</em> field</strong> — required so that aggregations like "all renewal fees in Mississippi above $200" can match per-fee, not per-document. Each entry has <code>{amount: float, fee_type: keyword, description: text, statutory_cap: float}</code>.</li>
+      <li><strong>Dates as <code>yyyy-MM-dd||epoch_millis</code></strong> on <code>effective_date</code> and <code>amendment_date</code> — accepts both ISO strings and ms timestamps, important because the LLM extractor produces strings while resume code may pass timestamps.</li>
+      <li><strong>Phase 2 filter fields are keywords</strong>: <code>state</code>, <code>agency_type</code>, <code>agency_name</code>. Used for filtering hybrid-search results by jurisdiction.</li>
+    </ul>
+
+    <h3 id="s2-handler"><span class="block-label">How it works</span>Lambda handler</h3>
+
+    <p>The deployed function is <code>ms-sos-legal-v2</code> (300s timeout, 2GB memory). The handler dispatches between three modes:</p>
+
+    <ul>
+      <li><strong>Mode 1 — async worker.</strong> Triggered when the event has <code>_async_job_id</code>. Runs the heavy query, writes result to DynamoDB.</li>
+      <li><strong>Mode 2 — HTTP GET.</strong> Status-check endpoint (<code>/v2/query/status/{id}</code>). Reads DynamoDB and returns current job state.</li>
+      <li><strong>Mode 3 — HTTP POST.</strong> Default. Creates a job, dispatches an async self-invoke via the Lambda client, returns <code>202 + job_id</code>.</li>
+    </ul>
+
+    <p>The <code>SYSTEM_PROMPT</code> at <code>lambda_handler.py:69</code> is the single source of truth for grounding behavior. It enforces:</p>
+
+    <ol>
+      <li>Every factual claim followed by inline citation in the form <code>(Source: &lt;filename&gt;, p.&lt;page&gt;)</code>.</li>
+      <li>Extrapolation wrapped in <code>[INFERENCE]: …</code> blocks.</li>
+      <li>Final line exactly <code>Grounding summary: &lt;N&gt; grounded, &lt;M&gt; inferred</code> — the eval rubric checks for this verbatim.</li>
+    </ol>
+
+    <div class="callout cl-warning">
+      <p><span class="label">Warning</span><code>maxTokens</code> is capped at <strong>2048</strong> in the Converse call. This isn't because the model can't handle more — it's to keep the synchronous portion of the request under API Gateway's 29s timeout in the rare case someone calls with <code>sync=true</code>. If you raise it, also raise the API Gateway timeout or you'll get silent truncation on sync paths.</p>
+    </div>
+
+    <h3><span class="block-label">Code map</span>Phase 1 entry points</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">SYSTEM_PROMPT</td>
+          <td class="path">lambda_handler.py:69</td>
+          <td class="desc">Strict grounding rules — citations, [INFERENCE]: tags, grounding summary line</td>
+        </tr>
+        <tr>
+          <td class="sym">get_embedding</td>
+          <td class="path">lambda_handler.py:93</td>
+          <td class="desc">Titan Embed Text v2; caps text to 8000 chars</td>
+        </tr>
+        <tr>
+          <td class="sym">search_pages</td>
+          <td class="path">lambda_handler.py:107</td>
+          <td class="desc">Hybrid kNN + BM25 + RRF on page records (record_type=page)</td>
+        </tr>
+        <tr>
+          <td class="sym">count_term_in_documents</td>
+          <td class="path">lambda_handler.py:225</td>
+          <td class="desc">Term-frequency via scroll API on document records</td>
+        </tr>
+        <tr>
+          <td class="sym">SoS Phase 1 mapping</td>
+          <td class="path">ingestion/index_manager.py:26</td>
+          <td class="desc">Shared OpenSearch mapping for both phases</td>
+        </tr>
+        <tr>
+          <td class="sym">IngestionPipeline._process_document</td>
+          <td class="path">ingestion/pipeline.py:329</td>
+          <td class="desc">Per-PDF processing: download → OCR → table → LLM batch → embed → index</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Phase 1 traps</h3>
+
+    <ul>
+      <li><strong>Phase 1 chat mode forces <code>state=MS</code></strong> even if the frontend sends no filter (see <code>_process_query</code> at <code>lambda_handler.py:761</code>). This was deliberate: chat mode = single-state Q&amp;A; cross-state lives in research mode.</li>
+      <li><strong>The compression model identifier in the Lambda handler defaults to whatever <code>BEDROCK_MODEL_ID</code> env var is set to.</strong> The frontend can override via the <code>model</code> field in the request body, but only against an allowlist (see <code>ALLOWED_MODELS</code> at <code>lambda_handler.py:342</code>). Adding a new model means updating both this allowlist and Marketplace subscriptions in AWS.</li>
+      <li><strong>The Phase 1 ingestion uses a flat S3 prefix</strong> (<code>source-documents/file.pdf</code>); Phase 2 uses a hierarchical one (<code>crawled-documents/TX/dental/file.pdf</code>). The pipeline's <code>list_pdfs()</code> auto-detects which by counting path segments — see <code>ingestion/pipeline.py:200</code>.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 3 — Phase 2 Multi-State Extension
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-3">
+    <h2><span class="sec-num">03</span>Phase 2 — Multi-State Extension</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>What Phase 2 adds</h3>
+
+    <p>Phase 2 keeps the Phase 1 architecture intact but extends it along three axes:</p>
+
+    <ol>
+      <li><strong>Geography.</strong> 7 states (MS, TN, AL, GA, AR, TX, LA), 3 agency types each, 21 source crawls.</li>
+      <li><strong>Extraction richness.</strong> A V2 compression schema pulls out fees, dates, license categories, testing requirements, statutory authority references, and reciprocity provisions — the metadata needed for cross-jurisdiction comparison and authority chains.</li>
+      <li><strong>Query types.</strong> A multi-agent orchestrator (in <code>backend/agents/</code>) supports nine intent categories beyond simple Q&amp;A: comparison, fee analysis, term frequency, reciprocity, authority chains, etc. The deployed Lambda runs a simpler regex-based version of this dispatch.</li>
+    </ol>
+
+    <h3 id="s3-v2"><span class="block-label">How it works</span>V2 metadata model</h3>
+
+    <p>Phase 1 used <code>CompressedAbstract</code> — abstract text, statute codes, compliance requirements, document type. That's enough for "answer the question" but not for "compare fees across states." Phase 2 adds <code>CompressedAbstractV2</code> (extends V1) with:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">state</td><td class="desc">Two-letter code (MS, TN, AL…); used for filtering and grouping</td></tr>
+        <tr><td class="sym">agency_type</td><td class="desc">Normalized: <code>medical</code>, <code>dental</code>, <code>real_estate</code></td></tr>
+        <tr><td class="sym">agency_name</td><td class="desc">Free-form name from the source ("Tennessee Board of Dentistry")</td></tr>
+        <tr><td class="sym">fee_amounts</td><td class="desc">List of <code>FeeRecord</code> {amount, fee_type, description, statutory_cap}</td></tr>
+        <tr><td class="sym">effective_date</td><td class="desc">ISO date when the rule took effect</td></tr>
+        <tr><td class="sym">amendment_date</td><td class="desc">ISO date of last amendment, if mentioned</td></tr>
+        <tr><td class="sym">license_categories</td><td class="desc">Keyword list (e.g. ["physician", "physician assistant"])</td></tr>
+        <tr><td class="sym">testing_requirements</td><td class="desc">Free text about exams, NCEES references, etc.</td></tr>
+        <tr><td class="sym">statutory_authority_references</td><td class="desc">Statute codes the rule cites as its enabling authority</td></tr>
+        <tr><td class="sym">reciprocity_provisions</td><td class="desc">Free text about out-of-state license recognition</td></tr>
+      </table>
+    </div>
+
+    <p>These fields populate via <code>compress_v2()</code> in <code>Sagemaker Files/compression_agent_bedrock.py:249</code>, driven by <code>COMPRESSION_PROMPT_V2</code> at line 78 of the same file. The prompt is the dial — tuning extraction quality means editing the prompt and re-running the pipeline.</p>
+
+    <h3 id="s3-orchestrator"><span class="block-label">How it works</span>Multi-agent orchestrator (Path B)</h3>
+
+    <p>The orchestrator (<code>backend/agents/orchestrator.py:53</code>) routes each query to one of nine specialized agents:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">FEE_COMPARISON</td><td class="desc">"Compare X fee across these states" — <code>FeeAnalysisAgent</code></td></tr>
+        <tr><td class="sym">TERM_FREQUENCY</td><td class="desc">"How often does X appear" — <code>TermFrequencyAgent</code></td></tr>
+        <tr><td class="sym">LICENSING_RECIPROCITY</td><td class="desc">Out-of-state recognition — <code>ReciprocityAgent</code></td></tr>
+        <tr><td class="sym">FEE_BENCHMARKING</td><td class="desc">"What's typical for X" — <code>FeeAnalysisAgent</code></td></tr>
+        <tr><td class="sym">AMENDMENT_HISTORY</td><td class="desc">Date-based queries — <code>SearchAgent</code> with date filters</td></tr>
+        <tr><td class="sym">STATUTORY_AUTHORITY</td><td class="desc">Ultra vires detection — <code>AuthorityAgent</code></td></tr>
+        <tr><td class="sym">LICENSE_CATEGORY_COMPARE</td><td class="desc">Cross-state license types — <code>ComparisonAgent</code></td></tr>
+        <tr><td class="sym">TESTING_REQUIREMENTS</td><td class="desc">Exam/cert questions — <code>SearchAgent</code></td></tr>
+        <tr><td class="sym">GENERAL_RESEARCH</td><td class="desc">Default catch-all — <code>SearchAgent</code></td></tr>
+      </table>
+    </div>
+
+    <p>Each agent has a single <code>execute()</code> method, takes filters explicitly, and returns a structured response with <code>answer</code>, <code>citations</code>, and an intent-specific <code>metadata</code> field (<code>comparison_table</code>, <code>fee_table</code>, <code>frequency_data</code>, <code>reciprocity_data</code>, <code>authority_chain</code>). The frontend's research view renders these as tables, charts, and chains rather than plain text.</p>
+
+    <p>The <code>ReflectionAgent</code> at <code>backend/agents/reflection_agent.py:75</code> is post-hoc: it decomposes the LLM answer into atomic claims, verifies each has a supporting citation, and tags any without one. This is the architectural piece that converts self-reported grounding (today) into verified grounding (the next iteration).</p>
+
+    <h3 id="s3-hybrid"><span class="block-label">How it works</span>Hybrid search (kNN + BM25 + RRF)</h3>
+
+    <p>This is the load-bearing retrieval call. Same formula in both <code>lambda_handler.py:107</code> and <code>backend/agents/_search_helpers.py:26</code>. The flow:</p>
+
+    <ol>
+      <li><strong>Embed the query</strong> via Titan (1024-dim, normalized).</li>
+      <li><strong>kNN query</strong>: find <code>candidate_pool = top_k * 3</code> nearest vectors in the embedding field, applying the same <code>state</code> / <code>agency_type</code> filters as the BM25 side.</li>
+      <li><strong>BM25 query</strong>: <code>bool</code> with one <code>match</code> clause per text field, each with a hand-tuned boost weight (table below). <code>minimum_should_match: 1</code>.</li>
+      <li><strong>RRF merge</strong>: for every hit at rank <code>r</code>, add <code>1 / (60 + r + 1)</code> to its score. A document that ranks well in both kNN and BM25 gets two contributions and rises to the top.</li>
+      <li><strong>Sort by combined RRF score</strong>, return top_k.</li>
+    </ol>
+
+    <h4>BM25 boost weights</h4>
+
+    <p>Order matters: the highest-boosted field dominates when a query token appears there.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Field</th><th class="num">Boost</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>statute_codes</code></td><td class="num">4.0</td><td>Statute citations are the most precise match; if the user says "73-25-29", they want that statute</td></tr>
+        <tr><td><code>statutory_authority_references</code></td><td class="num">3.5</td><td>Same reasoning, slightly less specific (it's the authority the rule cites, not the rule itself)</td></tr>
+        <tr><td><code>section_identifier</code></td><td class="num">3.0</td><td>"Rule §189.3", "Chapter 540-X-22" — when the user names a section, they want it</td></tr>
+        <tr><td><code>abstract_text</code></td><td class="num">2.0</td><td>The compressed summary; high signal but not as precise as code/section</td></tr>
+        <tr><td><code>core_rule</code></td><td class="num">2.0</td><td>The extracted single-sentence rule statement</td></tr>
+        <tr><td><code>raw_text</code></td><td class="num">1.5</td><td>Full page text; lots of noise, lower boost</td></tr>
+        <tr><td><code>compliance_requirements</code></td><td class="num">1.5</td><td>Extracted requirement list</td></tr>
+        <tr><td><code>testing_requirements</code></td><td class="num">1.5</td><td>Extracted exam/cert info</td></tr>
+        <tr><td><code>reciprocity_provisions</code></td><td class="num">1.5</td><td>Extracted reciprocity text</td></tr>
+        <tr><td><code>legal_entities</code></td><td class="num">1.0</td><td>Named entities; lowest signal</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout cl-decision">
+      <p><span class="label">Decision</span>RRF (<code>k=60</code>) was chosen over a tuned alpha-blend of normalized scores because RRF is <em>parameter-free across query types</em>. With score blending, a query where BM25 happens to return scores in the 1–5 range and kNN returns scores in the 0.7–0.95 range would systematically favor BM25 unless we re-normalized. RRF only uses ranks, so it sidesteps the calibration problem entirely. The <code>k=60</code> default comes from Cormack et al. (2009) — well-tested, no reason to deviate.</p>
+    </div>
+
+    <h3 id="s3-routing"><span class="block-label">How it works</span>Index routing &amp; state selection</h3>
+
+    <p>Routing rules in <code>_process_query</code> (<code>lambda_handler.py:704</code>):</p>
+
+    <ul>
+      <li><code>mode == 'chat'</code> → <code>ms-phase1-legal</code>, force <code>filter_state="MS"</code> if no filter set, ignore <code>filter_states</code>.</li>
+      <li><code>mode != 'chat'</code> (research/compare/count) → <code>multistate-phase2-legal</code>.</li>
+      <li>For multi-state intents (<code>comparison</code>, <code>reciprocity</code>): if no <code>filter_states</code> provided, run <code>detect_states(query)</code> on the query text. If still empty, default to all 7. If intent is <code>reciprocity</code> and MS isn't in the list, prepend it (the SoS office cares about MS reciprocity by definition).</li>
+      <li><strong>Per-state result budget</strong> (multi-state queries): if ≤2 states, 6 results each; ≤4 states, 4 each; ≥5 states, 3 each. This caps total context tokens to keep Mistral latency under budget.</li>
+    </ul>
+
+    <h3><span class="block-label">Code map</span>Phase 2 entry points</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">CompressedAbstractV2</td>
+          <td class="path">Sagemaker Files/models.py:98</td>
+          <td class="desc">V2 schema with state, agency, fees, dates, etc.</td>
+        </tr>
+        <tr>
+          <td class="sym">COMPRESSION_PROMPT_V2</td>
+          <td class="path">Sagemaker Files/compression_agent_bedrock.py:78</td>
+          <td class="desc">Extended Bedrock prompt extracting V2 fields</td>
+        </tr>
+        <tr>
+          <td class="sym">QueryIntent</td>
+          <td class="path">backend/agents/query_classifier.py:18</td>
+          <td class="desc">9-way intent enum (FEE_COMPARISON, TERM_FREQUENCY, …)</td>
+        </tr>
+        <tr>
+          <td class="sym">hybrid_search</td>
+          <td class="path">backend/agents/_search_helpers.py:26</td>
+          <td class="desc">Shared kNN + BM25 + RRF used by all Path B agents</td>
+        </tr>
+        <tr>
+          <td class="sym">_rrf_merge</td>
+          <td class="path">backend/agents/_search_helpers.py:108</td>
+          <td class="desc">Reciprocal Rank Fusion implementation; <code>rrf_k=60</code></td>
+        </tr>
+        <tr>
+          <td class="sym">ReflectionAgent</td>
+          <td class="path">backend/agents/reflection_agent.py:75</td>
+          <td class="desc">Post-hoc claim decomposition + per-claim verification</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Phase 2 traps</h3>
+
+    <ul>
+      <li><strong>Field-name drift between Path A and Path B.</strong> Path A's <code>search_pages</code> uses <code>text_embedding</code>; Path B's <code>hybrid_search</code> uses <code>embedding_vector</code>. They were written against different index versions. If you swap orchestrator to point at the Phase 2 index, you need to align field names or duplicate the embedding under both names.</li>
+      <li><strong>State inference is greedy.</strong> <code>detect_states()</code> at <code>lambda_handler.py:394</code> scans for substring matches like " al ", " ar ". Mentioning Alabama in a query like "I have an Alabama license" correctly tags AL — but a query about "Algeria" would also match " al " in some surrounding text. We've never been bitten by this in practice with regulatory queries; flag if it shows up.</li>
+      <li><strong>Per-state budget is hard-coded.</strong> Tuning it is a one-line change in <code>_process_query</code> but easy to miss when latency profiling. Production tuning would derive these from observed Mistral p95 latency, not eyeball them.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 4 — Web Crawling
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-4">
+    <h2><span class="sec-num">04</span>Web Crawling</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>What the crawlers do</h3>
+
+    <p>Each state publishes its administrative regulations differently — Mississippi uses a POST-based search API, Tennessee publishes flat HTML directories of PDFs, Alabama serves chapter-by-chapter PDFs from <code>admincode.alabama.gov</code>, etc. The crawler subsystem normalizes all of this into a single output: <strong>PDFs on disk, organized as <code>crawled_documents/&lt;STATE&gt;/&lt;agency_type&gt;/file.pdf</code></strong>, plus a <code>manifest.json</code> tracking what came from where. From there, the ingestion pipeline takes over.</p>
+
+    <h3 id="s4-targets"><span class="block-label">How it works</span>21 targets</h3>
+
+    <p>A <code>CrawlTarget</code> dataclass (<code>backend/crawlers/config.py:16</code>) describes one (state × agency_type) pair: state code, agency type (<code>medical | dental | real_estate</code>), agency name, source URL, crawler type (which subclass to use), allowed domains, and an <code>extra</code> dict for crawler-specific config (agency_id for MS, chapter list for AL, etc.). The full set lives in module-level lists (<code>MS_TARGETS</code>, <code>TN_TARGETS</code>, …) and totals 21 entries.</p>
+
+    <p>Lookups go through the registry:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">get_target(state, type)</td><td class="desc">Single target, e.g. <code>("TN", "dental")</code></td></tr>
+        <tr><td class="sym">get_targets_for_state(state)</td><td class="desc">All 3 agency types for a state</td></tr>
+        <tr><td class="sym">get_all_targets(states=, types=)</td><td class="desc">Filtered subset of all 21</td></tr>
+      </table>
+    </div>
+
+    <h3 id="s4-pattern"><span class="block-label">How it works</span>2-tier crawl pattern</h3>
+
+    <p>The pattern was extracted from the original <code>tn_documents.py</code> script and abstracted into <code>BaseCrawler.two_tier_crawl()</code> at <code>backend/crawlers/base_crawler.py:205</code>. It works for any state where the regulator publishes documents from a landing page that links to subpages.</p>
+
+    <pre class="ascii">         Tier 1 — Root page
+         ──────────────────
+              fetch(URL)
+                  │
+                  ▼
+        ┌─────────────────────┐
+        │ extract anchor tags │
+        └──┬──────────────┬───┘
+           │              │
+   doc URL?              keyword-matching
+   (.pdf, .docx, etc.)   subpage URL?
+           │              │
+           ▼              ▼
+     keep as              queue for tier 2
+     document             (max_subpages = 20)
+
+
+         Tier 2 — Subpage scan
+         ─────────────────────
+         For each queued subpage:
+              fetch(URL)
+                  │
+                  ▼
+        ┌─────────────────────┐
+        │ extract anchor tags │
+        └──┬──────────────────┘
+           │
+   doc URL? → keep as document
+   (no further recursion — depth = 2)</pre>
+
+    <p>The keyword filter (<code>RULES_KEYWORDS</code> at <code>base_crawler.py:37</code>) decides which subpages are worth following. The list expanded for Phase 2 to include fee/fine/penalty/license/reciprocity/examination/amendment/renewal terms — without those, we'd miss the fee schedules and reciprocity sections that the V2 extraction needs.</p>
+
+    <p>Allowed file extensions (<code>ALLOWED_DOC_EXTENSIONS</code>): <code>.pdf .doc .docx .xls .xlsx .ppt .pptx .txt .rtf .html .htm</code>. Anything outside this list is ignored, even if linked from a regulator page.</p>
+
+    <h3 id="s4-specialized"><span class="block-label">How it works</span>Specialized crawlers</h3>
+
+    <p>Some states don't fit the 2-tier HTML pattern. Each subclass overrides <code>discover_links()</code>:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">MSSoSCrawler</td><td class="path">backend/crawlers/ms_sos_crawler.py:27</td><td class="desc">POSTs to MS SoS search API with agency_id; parses JSON response</td></tr>
+        <tr><td class="sym">TNSoSCrawler</td><td class="path">backend/crawlers/tn_crawler.py:21</td><td class="desc">Fetches publications.tnsosfiles.com index, scrapes <code>a[href*=.pdf]</code></td></tr>
+        <tr><td class="sym">GenericCrawler</td><td class="path">backend/crawlers/generic_crawler.py:14</td><td class="desc">Default — runs <code>two_tier_crawl()</code> on target.url</td></tr>
+        <tr><td class="sym">specialized/al_admin_crawler</td><td class="desc">Alabama admincode.alabama.gov per-chapter PDFs</td></tr>
+        <tr><td class="sym">specialized/la_doa_crawler</td><td class="desc">Louisiana DOA — title/part/volume_file URL pattern</td></tr>
+        <tr><td class="sym">specialized/ar_sos_crawler</td><td class="desc">Arkansas SoS — search_url + agency_id + alt_agency_id</td></tr>
+        <tr><td class="sym">specialized/ga_sos_crawler</td><td class="desc">Georgia SoS specialized layout</td></tr>
+        <tr><td class="sym">specialized/tx_sos_crawler</td><td class="desc">Texas SoS specialized layout</td></tr>
+      </table>
+    </div>
+
+    <p>Subclass selection is by <code>crawler_type</code> string on the <code>CrawlTarget</code>. The CLI runner (<code>backend/crawlers/run_crawl.py</code>) maps these to classes via the <code>CRAWLER_CLASSES</code> dict and instantiates the right one per target.</p>
+
+    <div class="callout cl-note">
+      <p><span class="label">Note</span>The base <code>fetch()</code> sends a real-looking Chrome User-Agent header (<code>DEFAULT_BROWSER_UA</code> at <code>base_crawler.py:26</code>). Some state portals 403 on default <code>python-requests/2.x</code> — the UA spoofing is a precondition, not a stylistic choice.</p>
+    </div>
+
+    <h3 id="s4-manifest"><span class="block-label">How it works</span>Manifest &amp; diff detection</h3>
+
+    <p>After every crawl run, results are aggregated into a <code>CrawlManifest</code> (<code>backend/crawlers/manifest.py:45</code>): per-target timestamps, file hashes, sizes, source URLs. The runner persists this to <code>manifest.json</code> at the crawl root. On the next run, the new manifest is diffed against the previous one to identify <em>added</em>, <em>changed</em> (hash differs), and <em>removed</em> documents.</p>
+
+    <p>This is the substrate for the "weekly source refresh loop" advertised in the demo: crawl → diff → re-ingest only what changed → notify a human. The crawler tier is built today; the orchestration loop that wraps it is designed but activates on production deployment.</p>
+
+    <h3><span class="block-label">Code map</span>Crawler entry points</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">BaseCrawler</td>
+          <td class="path">backend/crawlers/base_crawler.py:97</td>
+          <td class="desc">ABC. Implements 2-tier crawl, retry, UA spoofing, file download</td>
+        </tr>
+        <tr>
+          <td class="sym">two_tier_crawl</td>
+          <td class="path">backend/crawlers/base_crawler.py:205</td>
+          <td class="desc">Standard root + keyword-subpage scan; <code>max_subpages=20</code> default</td>
+        </tr>
+        <tr>
+          <td class="sym">RULES_KEYWORDS</td>
+          <td class="path">backend/crawlers/base_crawler.py:37</td>
+          <td class="desc">Subpage filter list — expanded for Phase 2 use cases</td>
+        </tr>
+        <tr>
+          <td class="sym">CrawlTarget</td>
+          <td class="path">backend/crawlers/config.py:16</td>
+          <td class="desc">Frozen dataclass describing one (state, agency) pair</td>
+        </tr>
+        <tr>
+          <td class="sym">CrawlManifest.from_results</td>
+          <td class="path">backend/crawlers/manifest.py:70</td>
+          <td class="desc">Build manifest from CrawlResult list (hashes + sizes)</td>
+        </tr>
+        <tr>
+          <td class="sym">run_crawl (CLI)</td>
+          <td class="path">backend/crawlers/run_crawl.py:50</td>
+          <td class="desc">Entry: filter targets, group by crawler_type, run, persist manifest</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Crawler traps</h3>
+
+    <ul>
+      <li><strong><code>max_subpages = 20</code> is a hard cap.</strong> If a regulator's index page links to 40 chapter PDFs, the crawler will only follow the first 20 keyword-matching subpages. Bumping the cap means more crawl time and more politeness pressure on the source. Tune per-target via constructor arg, not globally.</li>
+      <li><strong>Filename collisions are auto-renamed.</strong> If a state publishes two files named <code>Chapter1.pdf</code> from different subpages, <code>BaseCrawler.download_file()</code> at line 258 appends <code>_2</code>, <code>_3</code> automatically. The manifest preserves the original URLs so you can trace the rename.</li>
+      <li><strong>No retry on download failures.</strong> The <code>fetch()</code> method retries (2 retries, exponential backoff). The <code>download_file()</code> path does not — a transient 503 mid-stream loses the file. The crawl manifest records the error; re-running the crawl re-attempts.</li>
+      <li><strong>The crawler is not on a schedule today.</strong> Crawls are kicked off manually via the CLI. The "weekly auto-refresh" in the demo deck is the architecture being ready, not a cron job that ships in the PoC.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 5 — Ingestion Package
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-5">
+    <h2><span class="sec-num">05</span>Ingestion Package (<code>ingestion/</code>)</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>Why this package exists</h3>
+
+    <p>The <code>ingestion/</code> package is the <strong>current local-execution pipeline</strong> for processing crawled PDFs into the OpenSearch index. It supersedes the older notebook-based pipeline in <code>Sagemaker Files/</code>. Both still exist on disk; the package is the one we run.</p>
+
+    <div class="callout cl-decision">
+      <p><span class="label">Decision</span>The notebook code lives on because it documents the original CLaRa-style compression-agent design and the exploratory Sagemaker work. New work goes into <code>ingestion/</code>. If you're tempted to fix a bug in the notebook, fix it in the package instead — that's where the canonical pipeline lives.</p>
+    </div>
+
+    <h3 id="s5-modules"><span class="block-label">How it works</span>Module map</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">aws_session.py</td>
+          <td class="desc">SSO-aware boto3 session; auto-refresh on credential expiry</td>
+        </tr>
+        <tr>
+          <td class="sym">models.py</td>
+          <td class="desc">Pydantic schemas: <code>FeeRecord</code>, <code>DocumentRecord</code>, <code>PageRecord</code>, <code>IngestionProgress</code></td>
+        </tr>
+        <tr>
+          <td class="sym">extractors.py</td>
+          <td class="desc">All extraction primitives: PyMuPDF, Textract OCR/tables, Mistral text + batch, Titan embedding</td>
+        </tr>
+        <tr>
+          <td class="sym">index_manager.py</td>
+          <td class="desc">OpenSearch index create/delete/stats/bulk; the canonical <code>INDEX_MAPPING</code> lives here</td>
+        </tr>
+        <tr>
+          <td class="sym">pipeline.py</td>
+          <td class="desc">Orchestration: list S3 PDFs, claim batches via lease, process each, save progress</td>
+        </tr>
+        <tr>
+          <td class="sym">lease.py</td>
+          <td class="desc">File-locked JSON ledger for multi-session coordination + heartbeats</td>
+        </tr>
+        <tr>
+          <td class="sym">retry_failed.py</td>
+          <td class="desc">Compares S3 vs progress file to identify and re-run missing docs</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3 id="s5-extract"><span class="block-label">How it works</span>Extraction pipeline (per-PDF)</h3>
+
+    <p><code>IngestionPipeline._process_document()</code> at <code>pipeline.py:329</code> is the canonical per-PDF flow. Annotated:</p>
+
+    <ol>
+      <li><strong>Generate <code>doc_id</code></strong> as the first 16 hex chars of <code>sha256(state/agency/filename)</code>. This guarantees uniqueness across states even if filenames collide ("rules.pdf" exists in three states).</li>
+      <li><strong>Download PDF from S3</strong> to <code>/tmp/sos-ingest-v2/&lt;filename&gt;</code>.</li>
+      <li><strong>PyMuPDF extracts text per page.</strong> Pages with empty text are scanned PDFs.</li>
+      <li><strong>Textract OCR loop</strong>: for each empty-text page, render to PNG at 200 DPI and call <code>detect_document_text</code>. Cost: ~$0.0015/page.</li>
+      <li><strong>Table-extraction loop</strong>: <code>is_table_page()</code> heuristic (≥3 dollar signs, ≥3 fee keywords, ≥60% short lines, column alignment) gates the call. Triggered pages get <code>analyze_document</code> with TABLES feature; the table is reconstructed and appended to the page text. Cost: ~$0.015/page.</li>
+      <li><strong>Build <code>document</code> record</strong> from concatenated full text (with <code>[Page N]</code> markers for the term-frequency scroll).</li>
+      <li><strong>Per-page processing</strong>: low-value pages (<code>is_low_value_page()</code> — text &lt; 80 chars or &lt; 30 alphabetic) skip the LLM and get raw text only. The rest go in batches of 3.</li>
+      <li><strong>Mistral batched extraction</strong>: <code>call_mistral_batch()</code> sends 3 pages per call (cost ~$0.012 vs $0.015 for 3 individual calls). Fallback to per-page on parse failure. Each page gets back the structured V2 fields.</li>
+      <li><strong>Per-page Titan embedding</strong>: <code>create_embedding_text()</code> builds the embedding input (abstract + core_rule + statute_codes + section_identifier + raw_text[:2000], joined by <code>|</code>); <code>get_text_embedding()</code> calls Titan v2 (1024-dim normalized).</li>
+      <li><strong>Bulk index</strong> via <code>IndexManager.bulk_index()</code>: 50 records per chunk; if a chunk fails with 413 (too large), fall back to one-record-at-a-time.</li>
+    </ol>
+
+    <h4>Why batch size 3?</h4>
+
+    <p><code>BATCH_SIZE = 3</code> at <code>pipeline.py:109</code>. Trade-off: batches of 1 are most reliable (single page, clean prompt) but most expensive (one API call per page). Batches of 5+ start hitting Mistral's max_tokens cap because a 5-page batch can produce 7500+ tokens of structured output. Three is the empirical sweet spot — ~3x throughput vs single-page, no truncation in practice. Each batch costs ~$0.012 (vs $0.005 × 3 = $0.015 for individual calls — modest savings on API cost, larger savings on wall time).</p>
+
+    <h3 id="s5-lease"><span class="block-label">How it works</span>Lease ledger (multi-session coordination)</h3>
+
+    <p>The pipeline can be run from multiple terminals or laptops simultaneously without each session re-processing the same documents. The mechanism is a <strong>file-locked JSON ledger</strong> at <code>ingestion_ledger_&lt;index&gt;.json</code> (<code>ingestion/lease.py</code>):</p>
+
+    <ul>
+      <li><strong>Session ID</strong>: defaults to <code>&lt;hostname&gt;-&lt;pid&gt;-&lt;short uuid&gt;</code>; can be set with <code>--session-id</code>.</li>
+      <li><strong><code>claim_batch(candidate_keys, batch_size)</code></strong>: under flock, looks at all unclaimed/uncompleted/unfailed keys, claims up to <code>batch_size</code> for the current session, writes back, releases lock. Returns the claimed list.</li>
+      <li><strong><code>heartbeat()</code></strong> updates the lease's <code>heartbeat_at</code> timestamp; called between batches.</li>
+      <li><strong>Stale-lease reaping</strong>: any lease whose heartbeat is older than 600 seconds (10 minutes) is considered abandoned. The next <code>claim_batch()</code> call returns its keys to the unclaimed pool.</li>
+      <li><strong><code>mark_done(key)</code> / <code>mark_failed(key)</code></strong>: move the key out of the lease into the global completed/failed sets.</li>
+      <li><strong><code>release()</code></strong> on shutdown: returns any unfinished claims to unclaimed.</li>
+    </ul>
+
+    <p>This pattern requires no DynamoDB, no Redis — just a shared filesystem. Works fine for the team's "two laptops at the same desk" scale; doesn't scale to many concurrent EC2 workers (you'd want DynamoDB conditional writes for that).</p>
+
+    <h3 id="s5-sso"><span class="block-label">How it works</span>SSO refresh &amp; resume</h3>
+
+    <p>SSO tokens expire after one hour. A multi-hour ingestion would die otherwise. <code>AWSSession.ensure_valid()</code> at <code>aws_session.py:91</code> calls STS GetCallerIdentity to test; on failure, prompts a browser SSO re-login (or exits cleanly with instructions for managed shells).</p>
+
+    <p>The pipeline calls <code>ensure_valid()</code> every 10 documents (<code>CHECK_CREDS_EVERY_N_DOCS</code>) and re-creates the boto3 clients on refresh. If indexing fails mid-batch with a token-expired error, <code>_process_document()</code> catches and retries once after a fresh refresh (<code>pipeline.py:524</code>).</p>
+
+    <p>Resume is automatic: the progress file is per-index (<code>ingestion_progress_&lt;index&gt;.json</code>). Re-running the pipeline picks up where the last run left off via the lease ledger; the legacy progress file is folded in once on startup for backward compatibility.</p>
+
+    <h3><span class="block-label">Code map</span>Ingestion entry points</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">IngestionPipeline</td>
+          <td class="path">ingestion/pipeline.py:121</td>
+          <td class="desc">Main class — config in __init__, work in run() and _process_document()</td>
+        </tr>
+        <tr>
+          <td class="sym">main (CLI)</td>
+          <td class="path">ingestion/pipeline.py:629</td>
+          <td class="desc">argparse entry — supports --dry-run, --max-docs, --resume, --reset, --session-id</td>
+        </tr>
+        <tr>
+          <td class="sym">LeaseManager.claim_batch</td>
+          <td class="path">ingestion/lease.py:131</td>
+          <td class="desc">Atomic claim under file lock; reaps stale leases</td>
+        </tr>
+        <tr>
+          <td class="sym">call_mistral_batch</td>
+          <td class="path">ingestion/extractors.py:393</td>
+          <td class="desc">Multi-page Bedrock call; max_tokens = min(4096, 1500 * batch_size)</td>
+        </tr>
+        <tr>
+          <td class="sym">_sanitize_fees</td>
+          <td class="path">ingestion/pipeline.py:54</td>
+          <td class="desc">Cleans LLM output ("Up to" → null) before OpenSearch nested validation</td>
+        </tr>
+        <tr>
+          <td class="sym">create_embedding_text</td>
+          <td class="path">ingestion/extractors.py:456</td>
+          <td class="desc">Builds the joined text that feeds Titan; pipe-separated</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Ingestion traps</h3>
+
+    <ul>
+      <li><strong>The LLM occasionally returns "Up to" or "varies" for fee amounts.</strong> Caught by <code>_sanitize_fees()</code> which extracts numbers via regex or drops the entry. If the value is non-numeric and has no embedded number, the fee is dropped silently — affects fee-comparison eval scores. Worth surfacing the drop count in pipeline logs.</li>
+      <li><strong>The pipeline is single-process per session.</strong> Parallelism comes from running multiple sessions simultaneously, not from threading inside one. CPU-bound stages (PDF parsing) and I/O-bound stages (Bedrock, OpenSearch) all run sequentially per document. Acceptable for the corpus size; a redesign would be needed for larger volumes.</li>
+      <li><strong>Textract is the most expensive step</strong> — $0.015 per table page can dominate cost on fee-heavy documents. The <code>is_table_page()</code> heuristic is conservative (score ≥ 3) but does fire false positives on heavily-formatted text. False positives waste money but don't degrade results.</li>
+      <li><strong>The legacy progress file is read once and migrated.</strong> If you delete it, no harm done (already in the ledger). If you have a stale one with a wildly different set of <code>completed_keys</code> than the ledger, the merge can mark already-failed docs as completed. Use <code>--reset</code> to nuke and re-run from scratch.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 6 — Frontend
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-6">
+    <h2><span class="sec-num">06</span>Frontend</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>What the frontend is responsible for</h3>
+
+    <p>A single-page React app that delivers two experiences: a simple <strong>chat mode</strong> (Phase 1, MS-only Q&amp;A) and a richer <strong>research mode</strong> (Phase 2, multi-state with structured outputs and filters). Beyond rendering text, it owns the <em>trust surface</em>: every answer shows where each claim came from and whether it was extrapolated. The frontend is what turns "the model said something" into "here's the receipt."</p>
+
+    <h3 id="s6-stack"><span class="block-label">How it works</span>Stack &amp; structure</h3>
+
+    <ul>
+      <li><strong>React 18 + Vite + TypeScript</strong>. No SSR; pure SPA.</li>
+      <li><strong>react-router</strong>: <code>"/"</code> → <code>App</code> (chat/research view), <code>"/docs/:filename"</code> → <code>DocsPage</code> (PDF preview at a specific page).</li>
+      <li><strong>react-pdf</strong> for PDF rendering inside the docs page.</li>
+      <li><strong>axios</strong> wrapped in <code>ChatService</code> for the async polling.</li>
+      <li><strong>State via custom hooks</strong>, not Redux/Zustand. Three load-bearing hooks: <code>useChat</code>, <code>useFilters</code>, <code>usePDF</code>.</li>
+    </ul>
+
+    <p>Top-level files:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">main.tsx</td><td class="path">frontend/src/main.tsx</td><td class="desc">Entry; mounts BrowserRouter, sets up routes</td></tr>
+        <tr><td class="sym">App.tsx</td><td class="path">frontend/src/App.tsx</td><td class="desc">Top-level chat/research view; mode toggle, filter panel, message list</td></tr>
+        <tr><td class="sym">useChat</td><td class="path">frontend/src/hooks/useChat.ts:7</td><td class="desc">Messages, isLoading, sendMessage; persists to localStorage</td></tr>
+        <tr><td class="sym">useFilters</td><td class="path">frontend/src/hooks/useFilters.ts</td><td class="desc">state / agency_type / states multi-select</td></tr>
+        <tr><td class="sym">usePDF</td><td class="path">frontend/src/hooks/usePDF.ts</td><td class="desc">document, page, scale state for the PDF viewer</td></tr>
+        <tr><td class="sym">ChatService</td><td class="path">frontend/src/services/api.ts:31</td><td class="desc">Wraps axios; implements 202+poll pattern</td></tr>
+      </table>
+    </div>
+
+    <h3 id="s6-async"><span class="block-label">How it works</span>Async polling</h3>
+
+    <p><code>ChatService.sendMessage()</code> at <code>services/api.ts:46</code> implements the client side of the async pattern:</p>
+
+    <ol>
+      <li>POST query to the API endpoint.</li>
+      <li>If response is 200 (sync mode), return immediately.</li>
+      <li>If response is 202 with a <code>job_id</code>, begin polling <code>/v2/query/status/{id}</code> every 2 seconds.</li>
+      <li>On <code>status: "done"</code>, resolve with the result.</li>
+      <li>On <code>status: "failed"</code>, reject with the error.</li>
+      <li>Time out after 5 minutes and reject.</li>
+    </ol>
+
+    <p>The hook (<code>useChat.sendMessage</code>) optimistically appends a user message, sets <code>isLoading=true</code>, awaits the service, and appends the assistant response on resolution (or an error message on rejection). State persists to <code>localStorage</code> under <code>chat_history_v4</code> so the conversation survives a refresh.</p>
+
+    <h3 id="s6-trust"><span class="block-label">How it works</span>Trust surfaces</h3>
+
+    <p>Five UI elements together form the grounding-transparency layer:</p>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">GroundingPill</td>
+          <td class="desc">In the response header. Green if 0 inferences ("grounded · N cited"), amber if any ("grounded · N cited · M inference(s)")</td>
+        </tr>
+        <tr>
+          <td class="sym">InferenceCallout</td>
+          <td class="desc">Yellow inline boxes wherever the response contains <code>[INFERENCE]: …</code></td>
+        </tr>
+        <tr>
+          <td class="sym">Citation tier chips</td>
+          <td class="desc"><code>STRONG MATCH</code> (green), <code>MODERATE MATCH</code> (amber), <code>WEAK MATCH</code> (grey) — bucketed from RRF score, never a fake percentage</td>
+        </tr>
+        <tr>
+          <td class="sym">ConfidenceBadge</td>
+          <td class="desc"><code>HIGH / MED / LOW</code> derived from retrieval signals (top-RRF score, hit count, intent type). Tooltip exposes the rule</td>
+        </tr>
+        <tr>
+          <td class="sym">Inline citation linkification</td>
+          <td class="desc"><code>utils/inlineCitations.tsx</code> — parses filenames, statute codes, section refs in the answer and turns them into clickable buttons that open the PDF preview at the cited page</td>
+        </tr>
+      </table>
+    </div>
+
+    <p>The inline-citation utility (<code>frontend/src/utils/inlineCitations.tsx</code>) deserves attention. It takes the raw markdown response and the citation list, builds three lookup maps (by filename, by section, by statute code), then runs ordered regex patterns over the text. When a match resolves to a citation, the matched text becomes a <code>&lt;CitationLink&gt;</code> button that calls <code>onOpenPage(document, page, state, agencyType)</code>. The fuzzy matching (substring on either side) is what makes "Rule §189.3" link even when the citation list stores it as "Rule 189.3" — at the cost of occasional false positives on common section numbers.</p>
+
+    <div class="callout cl-decision">
+      <p><span class="label">Decision</span>The tier chips deliberately avoid percentages. We never validated that <code>0.05 RRF score = 80% relevance</code>; anything labeled "87% MATCH" would be fiction. Bucketing by tier honestly reflects what we know (high vs medium vs low) without inventing precision.</p>
+    </div>
+
+    <h3 id="s6-research"><span class="block-label">How it works</span>Research views</h3>
+
+    <p>When the backend returns intent-specific structured metadata (<code>comparison_table</code>, <code>fee_table</code>, <code>frequency_data</code>, <code>reciprocity_data</code>, <code>authority_chain</code>), the research components render it as tables/charts rather than relying on the LLM's prose summary:</p>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">ComparisonTable</td><td class="path">components/research/ComparisonTable.tsx</td><td class="desc">Renders cross-state comparison metadata</td></tr>
+        <tr><td class="sym">FeeTable</td><td class="path">components/research/FeeTable.tsx</td><td class="desc">Renders fee_table with state, fee_type, amount, statutory_cap, citation</td></tr>
+        <tr><td class="sym">TermFrequencyChart</td><td class="path">components/research/TermFrequencyChart.tsx</td><td class="desc">Bar chart + per-document detail table</td></tr>
+        <tr><td class="sym">AuthorityChain</td><td class="path">components/research/AuthorityChain.tsx</td><td class="desc">Statute → delegation → regulation visualization</td></tr>
+        <tr><td class="sym">FilterPanel</td><td class="path">components/FilterPanel.tsx</td><td class="desc">State + agency_type filter chips for research mode</td></tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Code map</span>Frontend types</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">Citation</td>
+          <td class="path">types/index.ts:3</td>
+          <td class="desc">document, pages, relevance, state, agency_type, section, statute_codes</td>
+        </tr>
+        <tr>
+          <td class="sym">Message</td>
+          <td class="path">types/index.ts:14</td>
+          <td class="desc">id, role, content, timestamp, isError, citations, intent, metadata</td>
+        </tr>
+        <tr>
+          <td class="sym">ResponseMetadata</td>
+          <td class="path">types/index.ts:39</td>
+          <td class="desc">Optional structured payload — comparison_table | fee_table | frequency_data | …</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Frontend traps</h3>
+
+    <ul>
+      <li><strong>Polling never cancels on unmount.</strong> If a user navigates away mid-query, the polling promise keeps firing until timeout. Harmless (results just get GC'd) but wastes API calls. AbortController plumbing is the fix when we have time.</li>
+      <li><strong>Inline-citation linkification is fuzzy by design.</strong> A user query that returns a citation to "Rule §189.3" will linkify any mention of "189.3" in the answer, even if the LLM was talking about a different rule with the same number. Fixable by tightening the regex; deferred because it doesn't bite in practice.</li>
+      <li><strong>localStorage chat history grows unbounded.</strong> Long sessions (hundreds of turns) start to slow App.tsx renders. There's no eviction; the user has to clear it manually. Acceptable for the demo; a cap would be one-line.</li>
+      <li><strong>Vite env vars must start with <code>VITE_</code></strong>. The frontend reads <code>VITE_RESEARCH_ENDPOINT</code>, <code>VITE_CHAT_ENDPOINT</code>, <code>VITE_DOCS_ENDPOINT</code>, <code>VITE_DOCS_API_KEY</code>. Forgetting the prefix → undefined at build time, no warning.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 7 — Evaluation Framework
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-7">
+    <h2><span class="sec-num">07</span>Evaluation Framework</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3><span class="block-label">Purpose</span>Why we built this</h3>
+
+    <p>We needed a way to measure whether the system is doing what we claim — specifically, whether it's <em>honestly grounding</em> its answers. "Did it sound right?" is not a measurement; "did it cite a real source for every factual claim?" is. The eval is a 25-question pilot scored on four axes by an LLM judge.</p>
+
+    <h3 id="s7-rubric"><span class="block-label">How it works</span>4-axis rubric</h3>
+
+    <p>Every question gets a 0.0–1.0 score on each axis. The judge prompt at <code>evals/judge.py:28</code> gives explicit grading criteria for each:</p>
+
+    <table class="tbl">
+      <thead><tr><th>Axis</th><th>What it measures</th><th>Pilot score</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Groundedness</strong></td>
+          <td>Every non-inference factual claim has a citation</td>
+          <td class="num">0.66</td>
+        </tr>
+        <tr>
+          <td><strong>Inference Honesty</strong></td>
+          <td>Extrapolations marked with <code>[INFERENCE]:</code>, <code>Grounding summary:</code> line present and accurate</td>
+          <td class="num">0.80</td>
+        </tr>
+        <tr>
+          <td><strong>Correctness</strong></td>
+          <td>Substantive answer matches the ideal answer</td>
+          <td class="num">0.56</td>
+        </tr>
+        <tr>
+          <td><strong>Jurisdiction</strong></td>
+          <td>Cited statutes/rules are from the correct state</td>
+          <td class="num">0.88</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Two derived headlines:</p>
+
+    <ul>
+      <li><strong>Primary score</strong> = mean(Groundedness, Inference Honesty) = <strong>0.73</strong>. This is the "do we trust the answer?" headline because grounding × honesty tells you whether the system is straight with you about what it knows.</li>
+      <li><strong>Overall</strong> = mean(all 4 axes) = <strong>0.72</strong>.</li>
+    </ul>
+
+    <h4>Judge model</h4>
+
+    <p>The judge runs on <strong>Amazon Nova Pro</strong> (<code>us.amazon.nova-pro-v1:0</code>), set via the <code>JUDGE_MODEL_ID</code> env var (<code>evals/judge.py:28</code>). Why Nova: it's available on our account without Marketplace subscription gymnastics, fast enough for 25 sequential calls, and cheap. Switching to a different judge model (e.g., Claude Sonnet if access opens) is a single env-var change.</p>
+
+    <div class="callout cl-warning">
+      <p><span class="label">Caveat</span>The judge is the same model family as the system under test (both are Amazon-hosted via Bedrock). Standard LLM-as-judge concern: model-family bias. The 4-axis rubric mitigates this by being prescriptive (the judge isn't asked "is this good?" — it's asked "does the answer end with a <code>Grounding summary:</code> line?"). A counsel-validated 80-question set with human spot-checks is the next reliability step.</p>
+    </div>
+
+    <h3 id="s7-pilot"><span class="block-label">How it works</span>Pilot results</h3>
+
+    <p>Per-pattern breakdown — questions are tagged by query pattern so we can see where the system shines and where it struggles:</p>
+
+    <table class="tbl">
+      <thead><tr><th>Pattern</th><th class="num">Mean overall</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>statutory_authority</td><td class="num">0.92</td><td>Strongest pattern — the use case Colby flagged as core (ultra vires)</td></tr>
+        <tr><td>amendment_dates</td><td class="num">0.83</td><td>Date-extraction works well</td></tr>
+        <tr><td>testing_requirements</td><td class="num">0.82</td><td>Exam/cert questions land cleanly</td></tr>
+        <tr><td>reciprocity</td><td class="num">0.74</td><td>Out-of-state recognition; mid-pack</td></tr>
+        <tr><td>renewal_fees</td><td class="num">0.68</td><td>Single-state fee questions</td></tr>
+        <tr><td>fee_comparison</td><td class="num">0.52</td><td>Cross-state fee comparison — weakest, see worst-questions section</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Worst questions (and what they reveal)</h4>
+
+    <ul>
+      <li><strong>q-017</strong> — infrastructure failure (<code>list index out of range</code> in the eval harness). Excluded from the 24-question primary average. Harness bug, not model failure.</li>
+      <li><strong>q-010</strong> (Arkansas physician academic license renewal) and <strong>q-014</strong> (Alabama/Tennessee real estate Recovery Fund fees) both scored 0.00 across all axes. Common cause: the model returned an answer <em>without</em> the required <code>Grounding summary:</code> line, which the rubric treats as a complete failure. Pattern correlates with synthesis-heavy fee-comparison questions where the model is doing too much work and forgets the closing structure.</li>
+    </ul>
+
+    <p>This is the proximate cause of the fee_comparison 0.52. The fix isn't more training — it's deterministic post-hoc verification (the <code>ReflectionAgent</code> design) that doesn't trust the model to self-mark.</p>
+
+    <h3 id="s7-limits"><span class="block-label">Key decisions</span>Methodology choices</h3>
+
+    <ul>
+      <li><strong>N=25, AI-curated.</strong> The golden set was assembled by Claude against public state-government sources, not validated by counsel. Real production-quality eval would be ~80 questions reviewed by Colby. The 25-question pilot validates the methodology and catches gross failures; the score numbers are indicative, not authoritative.</li>
+      <li><strong>Single run, no variance analysis.</strong> Each question runs once. We don't know how much score-jitter there is across runs at temperature 0.1. Easy to add (run each question 3x, report mean ± stdev), deferred for the pilot.</li>
+      <li><strong>Self-reported grounding.</strong> The <code>Grounding summary:</code> count is whatever the model claims it is. The judge checks the line is present and parseable but doesn't independently verify the count by reading the answer. Reflection-agent verification is the architectural answer to this.</li>
+      <li><strong>4 axes, not 1.</strong> A single composite score would let "looks correct, isn't grounded" pass. Splitting into 4 surfaces the trade-offs and tells us where to invest.</li>
+    </ul>
+
+    <h3><span class="block-label">Code map</span>Eval entry points</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">run_eval (CLI)</td>
+          <td class="path">evals/run_eval.py</td>
+          <td class="desc">Calls live Lambda for each golden question, judges, writes results.jsonl + report.md</td>
+        </tr>
+        <tr>
+          <td class="sym">RUBRIC_PROMPT</td>
+          <td class="path">evals/judge.py:28</td>
+          <td class="desc">4-axis grading prompt with explicit criteria per axis</td>
+        </tr>
+        <tr>
+          <td class="sym">judge()</td>
+          <td class="path">evals/judge.py:92</td>
+          <td class="desc">One-question judging call; returns scores dict</td>
+        </tr>
+        <tr>
+          <td class="sym">aggregate()</td>
+          <td class="path">evals/run_eval.py:126</td>
+          <td class="desc">Computes primary, overall, per-axis, per-pattern</td>
+        </tr>
+        <tr>
+          <td class="sym">report_v1.md</td>
+          <td class="path">evals/report_v1.md</td>
+          <td class="desc">Latest report — primary 0.73, overall 0.72, 24/25 successful</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Eval traps</h3>
+
+    <ul>
+      <li><strong>The eval runs against the live Lambda.</strong> Each run consumes Bedrock budget proportional to N × (system tokens + judge tokens). 25 questions ≈ ~$3 per full run. Don't loop the eval — set it intentionally.</li>
+      <li><strong>The poll timeout matters.</strong> <code>run_eval.py:57</code> has a <code>MAX_POLL_S</code> budget per question. If a question takes longer than that, the eval records a failure even if Lambda eventually completes. Tune carefully when adding heavy questions.</li>
+      <li><strong>Judge model availability shifts the rubric.</strong> If Nova Pro changes or Bedrock ID rotates, scores can move without any system changes. Pin the model version in <code>JUDGE_MODEL_ID</code> for any release-comparison eval.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 8 — AWS Infrastructure & Cost
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-8">
+    <h2><span class="sec-num">08</span>AWS Infrastructure &amp; Cost</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3 id="s8-services"><span class="block-label">How it works</span>Services map</h3>
+
+    <p>Account: <strong>123456789012</strong>. Region: <strong>us-east-1</strong>.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Service</th><th>Purpose</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>OpenSearch Managed</strong></td>
+          <td>Vector + keyword search; both phase indexes</td>
+          <td>NOT Serverless — managed cluster. Always-on; biggest fixed cost.</td>
+        </tr>
+        <tr>
+          <td><strong>Bedrock Runtime</strong></td>
+          <td>LLM (Mistral L3, Nova Pro, Kimi, Nemotron) + Embeddings (Titan v2)</td>
+          <td>Pay-per-token. Converse API for model-agnostic calls.</td>
+        </tr>
+        <tr>
+          <td><strong>Lambda</strong></td>
+          <td>Query handler (<code>ms-sos-legal-v2</code>) + docs handler</td>
+          <td>2GB RAM, 300s timeout. Self-invokes async to bypass APIGW 29s.</td>
+        </tr>
+        <tr>
+          <td><strong>API Gateway</strong></td>
+          <td>HTTPS endpoint; routes to Lambda</td>
+          <td><code>POST /v2/query</code>, <code>GET /v2/query/status/{id}</code>, <code>POST /v2/docs</code></td>
+        </tr>
+        <tr>
+          <td><strong>S3</strong></td>
+          <td>Source PDFs + crawled documents</td>
+          <td>Bucket <code>ms-sos-legal-documents</code>. Presigned URLs (5min) for frontend PDF preview.</td>
+        </tr>
+        <tr>
+          <td><strong>Textract</strong></td>
+          <td>OCR for scanned PDFs + table extraction</td>
+          <td>Synchronous APIs (<code>detect_document_text</code>, <code>analyze_document</code>). Page-rate billing.</td>
+        </tr>
+        <tr>
+          <td><strong>DynamoDB</strong></td>
+          <td>Async job ledger (<code>ms-sos-query-jobs</code>)</td>
+          <td>TTL 1 hour. Holds intermediate state for poll-based queries.</td>
+        </tr>
+        <tr>
+          <td><strong>SageMaker</strong></td>
+          <td>Notebook environment (legacy / shut down)</td>
+          <td>Was used for early ingestion runs. <strong>Now off</strong> — no remaining cost.</td>
+        </tr>
+        <tr>
+          <td><strong>IAM Identity Center (SSO)</strong></td>
+          <td>Local dev access</td>
+          <td>Profile <code><your-aws-profile></code>; 1-hour token TTL.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 id="s8-models"><span class="block-label">Key decisions</span>Bedrock model access constraints</h3>
+
+    <p>Only specific Bedrock models work today on this account. The blockers:</p>
+
+    <ul>
+      <li><strong>Anthropic models (Claude Haiku/Sonnet/Opus 4.x)</strong> — blocked by AWS Marketplace subscription, NOT by an SCP. Subscribing requires marketplace billing entitlements that the account doesn't have. We've confirmed this isn't a model-access toggle in the Bedrock console; it's an upstream Marketplace gate.</li>
+      <li><strong>Working models</strong>: <code>mistral.mistral-large-3-675b-instruct</code>, <code>us.amazon.nova-pro-v1:0</code>, <code>moonshotai.kimi-k2.5</code>, <code>nvidia.nemotron-super-3-120b</code>, <code>amazon.titan-embed-text-v2:0</code>.</li>
+      <li>The frontend <code>ALLOWED_MODELS</code> dict (<code>lambda_handler.py:342</code>) is the server-side allowlist — adding a new option means updating both this dict and the Marketplace subscription.</li>
+    </ul>
+
+    <p>Default LLM via env: <code>BEDROCK_MODEL_ID</code>. Default embedding: <code>amazon.titan-embed-text-v2:0</code> (1024-dim, normalized).</p>
+
+    <h3 id="s8-spend"><span class="block-label">How it works</span>Verified spend (Feb 19 – Apr 19, Phase 2)</h3>
+
+    <p>Pulled directly from <code>aws ce get-cost-and-usage</code> against the <your-aws-profile> profile. Total Phase 2 build cost: <strong>$751.30</strong> across the 60-day window.</p>
+
+    <table class="tbl">
+      <thead><tr><th>Line</th><th class="num">/ month (avg)</th><th>What drives it</th></tr></thead>
+      <tbody>
+        <tr><td>OpenSearch Managed (search index)</td><td class="num">~$215</td><td>Always-on cluster — biggest fixed cost</td></tr>
+        <tr><td>SageMaker (dev environment)</td><td class="num">~$70</td><td>Notebook + dev tooling — now wound down</td></tr>
+        <tr><td>Textract (document processing)</td><td class="num">~$50</td><td>One-time corpus ingest, amortized over 60 days</td></tr>
+        <tr><td>Bedrock (AI model usage)</td><td class="num">~$30</td><td>Q&amp;A + eval runs</td></tr>
+        <tr><td>Other (S3, DynamoDB, transfer)</td><td class="num">~$10</td><td>Small fixed overhead</td></tr>
+        <tr><td><strong>Total avg / month (pilot)</strong></td><td class="num"><strong>~$375</strong></td><td>Matches verified $376/mo from billing console</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Production estimate (no SageMaker, weekly refresh active)</h4>
+
+    <table class="tbl">
+      <thead><tr><th>Line</th><th class="num">/ month</th></tr></thead>
+      <tbody>
+        <tr><td>OpenSearch Managed</td><td class="num">~$220</td></tr>
+        <tr><td>Bedrock — ~10K staff queries/month + judge runs</td><td class="num">~$100</td></tr>
+        <tr><td>Weekly source-refresh loop (re-crawl + re-index changes)</td><td class="num">~$50</td></tr>
+        <tr><td>Other (S3, DynamoDB, APIGW, Lambda)</td><td class="num">~$10</td></tr>
+        <tr><td><strong>Total estimated / month (production)</strong></td><td class="num"><strong>~$380</strong></td></tr>
+      </tbody>
+    </table>
+
+    <h4>Per-state economics</h4>
+
+    <p>Adding one new state (3 agencies, ~150–300 PDFs):</p>
+
+    <ul>
+      <li><strong>One-time ingest</strong>: ~$30 (Textract dominates for fee-heavy docs; Bedrock LLM extraction; Titan embedding).</li>
+      <li><strong>Monthly steady-state</strong>: ~$50 (OpenSearch storage + weekly refresh + query share).</li>
+      <li>Same architecture, no rework. The 7-state Phase 2 footprint at $375/mo divided by 7 ≈ $54/state.</li>
+    </ul>
+
+    <h3><span class="block-label">Code map</span>Where infra is configured</h3>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">Lambda env vars</td><td class="path">lambda_deploy/deploy.sh</td><td class="desc">OPENSEARCH_ENDPOINT, PHASE1/2_INDEX, BEDROCK_MODEL_ID, JOBS_TABLE</td></tr>
+        <tr><td class="sym">IAM policy</td><td class="path">lambda_deploy/iam_policy.json</td><td class="desc">DynamoDB CRUD, Lambda self-invoke, Textract detect/analyze</td></tr>
+        <tr><td class="sym">ALLOWED_MODELS</td><td class="path">lambda_handler.py:342</td><td class="desc">Server-side model allowlist; sync with Marketplace subs</td></tr>
+        <tr><td class="sym">AWSConfig</td><td class="path">Sagemaker Files/config.py:76</td><td class="desc">region, endpoint, indexes, model IDs (legacy / dev path)</td></tr>
+        <tr><td class="sym">SSO profile</td><td class="path">~/.aws/config</td><td class="desc">Profile name <code><your-aws-profile></code>, account 123456789012</td></tr>
+      </table>
+    </div>
+
+    <h3><span class="block-label">Gotchas</span>Infra traps</h3>
+
+    <ul>
+      <li><strong>OpenSearch Managed dominates fixed cost.</strong> The cluster bills 24/7 regardless of query volume. Going OpenSearch Serverless would change the cost model dramatically (pay per OCU-hour); not done because Managed was simpler to provision and the team is more comfortable operating it.</li>
+      <li><strong>SSO tokens expire after 1 hour.</strong> Long-running ingestion handles this in code; ad-hoc CLI work needs <code>aws sso login --profile <your-aws-profile></code> when STS calls start failing with NoCredentials.</li>
+      <li><strong>Bedrock pricing is per-token.</strong> A bad prompt that returns 4096 tokens of slop costs the same as a great prompt that returns 4096 tokens of insight. The <code>maxTokens</code> caps in the handler are protection, not aesthetics.</li>
+      <li><strong>Textract sync APIs have a 5MB image limit.</strong> If a PDF page renders to a larger PNG at 200 DPI, the call 400s. Hasn't bitten us yet; would manifest as repeated OCR failures on a specific page.</li>
+    </ul>
+  </section>
+
+  <hr>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       SECTION 9 — Operational Notes
+       ═════════════════════════════════════════════════════════════════ -->
+
+  <section id="sec-9">
+    <h2><span class="sec-num">09</span>Operational Notes</h2>
+    <div class="last-verified"><span class="label">Last verified:</span> 2026-04-20 against commit <code>a9d7ab3</code></div>
+
+    <h3 id="s9-deploy"><span class="block-label">How it works</span>Deploy scripts</h3>
+
+    <div class="code-map">
+      <table>
+        <tr>
+          <td class="sym">build.sh</td>
+          <td class="path">lambda_deploy/build.sh</td>
+          <td class="desc">Builds <code>lambda_v2.zip</code> — pip-installs <code>opensearch-py</code> + <code>requests-aws4auth</code> for <code>manylinux2014</code> Python 3.11; copies <code>lambda_handler.py</code>; zips</td>
+        </tr>
+        <tr>
+          <td class="sym">deploy.sh</td>
+          <td class="path">lambda_deploy/deploy.sh</td>
+          <td class="desc">Creates or updates Lambda <code>ms-sos-legal-v2</code> (300s, 2GB), wires API Gateway <code>/v2/query</code> + status endpoint, sets env vars, enables CORS</td>
+        </tr>
+        <tr>
+          <td class="sym">deploy_docs.sh</td>
+          <td class="path">lambda_deploy/deploy_docs.sh</td>
+          <td class="desc">Deploys docs handler Lambda for S3 presigned URL generation</td>
+        </tr>
+        <tr>
+          <td class="sym">add_status_endpoint.sh</td>
+          <td class="path">lambda_deploy/add_status_endpoint.sh</td>
+          <td class="desc">Adds <code>GET /v2/query/status/{job_id}</code> to API Gateway for async polling</td>
+        </tr>
+        <tr>
+          <td class="sym">iam_policy.json</td>
+          <td class="path">lambda_deploy/iam_policy.json</td>
+          <td class="desc">Permissions: DynamoDB ms-sos-query-jobs CRUD, Lambda self-invoke, Textract</td>
+        </tr>
+      </table>
+    </div>
+
+    <p>Standard deploy flow:</p>
+
+    <pre><code class="language-bash">cd lambda_deploy
+./build.sh                # produces lambda_v2.zip
+./deploy.sh               # update function + API GW
+# new endpoint? add_status_endpoint.sh / deploy_docs.sh as needed</code></pre>
+
+    <h3 id="s9-iam"><span class="block-label">How it works</span>IAM &amp; SSO</h3>
+
+    <p>Three identity contexts to keep separate:</p>
+
+    <ol>
+      <li><strong>Lambda execution role</strong> — has the policy in <code>iam_policy.json</code>: DynamoDB ops on <code>ms-sos-query-jobs</code>, <code>lambda:InvokeFunction</code> on self (for async self-invoke), Textract <code>DetectDocumentText</code> + <code>AnalyzeDocument</code>, plus the implicit Bedrock + OpenSearch access from the broader account role.</li>
+      <li><strong>Local SSO (<code><your-aws-profile></code> profile)</strong> — used for ingestion, eval, and ad-hoc CLI. 1-hour token TTL. Renew with <code>aws sso login --profile <your-aws-profile></code>.</li>
+      <li><strong>OpenSearch fine-grained access</strong> — the cluster is configured to accept <code>AWS4Auth</code>-signed requests from the Lambda role. Local pipeline uses the same SigV4 path via the SSO credentials.</li>
+    </ol>
+
+    <h3 id="s9-known"><span class="block-label">Gotchas</span>Known issues</h3>
+
+    <ul>
+      <li><strong>q-017 eval harness bug.</strong> A specific question crashes the eval with <code>list index out of range</code>. Excluded from the primary average; needs a fix in <code>run_eval.py</code> or the judge response parsing.</li>
+      <li><strong>fee_comparison pattern at 0.52.</strong> The model occasionally drops the <code>Grounding summary:</code> line on synthesis-heavy fee questions. Architectural fix is the <code>ReflectionAgent</code> post-hoc verification (designed, ready to wire in).</li>
+      <li><strong>Inline citation linkifier false positives.</strong> Rule numbers like "189.3" are common enough that the linkifier can attach a citation to the wrong mention. Tighten the regex to require statute prefix or section keyword before number.</li>
+      <li><strong>Path A vs Path B field-name drift.</strong> See Section 1 — <code>text_embedding</code> vs <code>embedding_vector</code>. Switching the live API to Path B requires either renaming the index field or updating the agent helpers.</li>
+    </ul>
+
+    <h3 id="s9-gotchas"><span class="block-label">Gotchas</span>Quick reference (everything that's bitten us)</h3>
+
+    <div class="callout cl-gotcha">
+      <p><span class="label">Operational</span></p>
+      <ul style="margin: 0.4rem 0;">
+        <li>SSO tokens expire after 1 hour. Re-run <code>aws sso login --profile <your-aws-profile></code>.</li>
+        <li>API Gateway hard 29-second timeout. The async self-invoke pattern is mandatory, not optional.</li>
+        <li>Lambda cold start with 2GB RAM + dependencies ≈ 3–5s. Warm calls are ~150ms before the LLM.</li>
+        <li>Marketplace subscription required for Anthropic models. Don't try to "just enable" them in the Bedrock console.</li>
+      </ul>
+    </div>
+
+    <div class="callout cl-gotcha">
+      <p><span class="label">Data</span></p>
+      <ul style="margin: 0.4rem 0;">
+        <li>LLM extractor sometimes returns "Up to" or "varies" for fee amounts. <code>_sanitize_fees()</code> drops them silently — visible in extraction logs only.</li>
+        <li>OpenSearch nested fields require strict types. A single bad fee value can fail the whole document index without sanitization.</li>
+        <li>Filename collisions across states are real (<code>rules.pdf</code> exists in 5 states). The <code>doc_id</code> hash includes state and agency to disambiguate.</li>
+        <li>Textract sync APIs cap at 5MB image input. 200 DPI for full-page PNGs is calibrated to stay under.</li>
+      </ul>
+    </div>
+
+    <div class="callout cl-gotcha">
+      <p><span class="label">Frontend</span></p>
+      <ul style="margin: 0.4rem 0;">
+        <li>Vite env vars must start with <code>VITE_</code>. Forgetting the prefix → <code>undefined</code> at build time, no warning.</li>
+        <li>Polling loop doesn't cancel on unmount. Wasted API calls until 5min timeout.</li>
+        <li>localStorage chat history grows unbounded. Manual clear required for long sessions.</li>
+        <li>Tier chips deliberately avoid percentages — never validated. Don't add a "% MATCH" label.</li>
+      </ul>
+    </div>
+
+    <div class="callout cl-gotcha">
+      <p><span class="label">Eval</span></p>
+      <ul style="margin: 0.4rem 0;">
+        <li>Each full eval run costs ~$3 in Bedrock. Don't loop it.</li>
+        <li>Judge model bias: Nova judging Mistral; same model family caveat applies.</li>
+        <li>Self-reported grounding count. The <code>Grounding summary:</code> N is whatever the model claims — verification is post-hoc.</li>
+        <li>N=25 single-run, no variance. Score numbers indicative, not authoritative.</li>
+      </ul>
+    </div>
+
+    <h3><span class="block-label">Code map</span>Where to look first when things break</h3>
+
+    <div class="code-map">
+      <table>
+        <tr><td class="sym">Lambda CloudWatch logs</td><td class="desc"><code>/aws/lambda/ms-sos-legal-v2</code> — async failures appear here as the worker run dies</td></tr>
+        <tr><td class="sym">DynamoDB ms-sos-query-jobs</td><td class="desc">Look for <code>status: failed</code> rows; <code>error</code> field has the exception</td></tr>
+        <tr><td class="sym">Ingestion progress JSON</td><td class="desc"><code>ingestion/ingestion_progress_&lt;index&gt;.json</code> + <code>ingestion_ledger_&lt;index&gt;.json</code></td></tr>
+        <tr><td class="sym">Crawler manifest</td><td class="desc"><code>crawled_documents/manifest.json</code> — last crawl results, errors per target</td></tr>
+        <tr><td class="sym">Eval results</td><td class="desc"><code>evals/results.jsonl</code> (per-question), <code>evals/report_v1.md</code> (aggregated)</td></tr>
+      </table>
+    </div>
+
+    <h3>Repository signposts</h3>
+
+    <p>One-line description of every meaningful directory at the repo root, in case you arrive cold:</p>
+
+    <table class="tbl">
+      <thead><tr><th>Path</th><th>What's there</th></tr></thead>
+      <tbody>
+        <tr><td><code>backend/agents/</code></td><td>Path B multi-agent orchestrator (designed; not the live deploy)</td></tr>
+        <tr><td><code>backend/crawlers/</code></td><td>21-target web crawler subsystem</td></tr>
+        <tr><td><code>ingestion/</code></td><td>Current local-execution ingest pipeline (canonical)</td></tr>
+        <tr><td><code>Sagemaker Files/</code></td><td>Original notebook-era pipeline + canonical models/config (legacy)</td></tr>
+        <tr><td><code>frontend/</code></td><td>Vite/React SPA — chat + research views</td></tr>
+        <tr><td><code>lambda_deploy/</code></td><td>Build + deploy scripts for the Lambda function</td></tr>
+        <tr><td><code>evals/</code></td><td>Pilot evaluation harness, golden set, judge, reports</td></tr>
+        <tr><td><code>crawled_documents/</code></td><td>Output of the crawler (state/agency_type/file.pdf hierarchy)</td></tr>
+        <tr><td><code>tn_documents/</code></td><td>Original TN-only crawler output (predecessor of <code>backend/crawlers/</code>)</td></tr>
+        <tr><td><code>docs/</code></td><td>Project docs — specs, talking points, plans</td></tr>
+        <tr><td><code>tasks/</code></td><td>Background task notes</td></tr>
+        <tr><td><code>lambda_handler.py</code></td><td>Path A — the production Lambda handler</td></tr>
+        <tr><td><code>docs_lamda.py</code></td><td>S3 presigned URL Lambda</td></tr>
+        <tr><td><code>test_lambda.py</code></td><td>Local testing harness against deployed Lambda</td></tr>
+        <tr><td><code>reglex-sos-demo.html</code></td><td>External demo deck for the client</td></tr>
+        <tr><td><code>internal-docs.html</code></td><td>This file — internal engineering reference</td></tr>
+      </tbody>
+    </table>
+
+  </section>
+
+  </main>
+</div>
+
+<script>
+hljs.highlightAll();
+
+(function() {
+  const filter = document.getElementById('tocFilter');
+  const toc    = document.getElementById('toc');
+  const allItems = toc.querySelectorAll('li');
+  const allLinks = toc.querySelectorAll('a');
+
+  // ── Cmd+K focuses filter ──
+  document.addEventListener('keydown', function(e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      filter.focus();
+      filter.select();
+    }
+    if (e.key === 'Escape' && document.activeElement === filter) {
+      filter.value = '';
+      filter.dispatchEvent(new Event('input'));
+      filter.blur();
+    }
+  });
+
+  // ── TOC filter ──
+  filter.addEventListener('input', function() {
+    const q = filter.value.trim().toLowerCase();
+    if (!q) {
+      allItems.forEach(li => { li.style.display = ''; });
+      return;
+    }
+    // Walk every link; show its <li> chain if text matches
+    allLinks.forEach(a => {
+      const li = a.closest('li');
+      if (li) li.style.display = 'none';
+    });
+    allLinks.forEach(a => {
+      if (a.textContent.toLowerCase().includes(q)) {
+        // Show this li + parent lis
+        let el = a.closest('li');
+        while (el && el.tagName === 'LI') {
+          el.style.display = '';
+          el = el.parentElement.closest('li');
+        }
+      }
+    });
+  });
+
+  // ── Active section highlighting on scroll ──
+  const sections = document.querySelectorAll('main section[id]');
+  const subAnchors = document.querySelectorAll('main h3[id]');
+  const tocL1 = toc.querySelectorAll('.toc-l1');
+  const tocSub = toc.querySelectorAll('.toc-sub a');
+
+  function setActive(id) {
+    tocL1.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  }
+  function setActiveSub(id) {
+    tocSub.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + id));
+  }
+
+  const sectionObserver = new IntersectionObserver(function(entries) {
+    // pick the topmost intersecting section
+    const visible = entries.filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible.length) setActive(visible[0].target.id);
+  }, { rootMargin: '-30% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => sectionObserver.observe(s));
+
+  const subObserver = new IntersectionObserver(function(entries) {
+    const visible = entries.filter(e => e.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    if (visible.length) setActiveSub(visible[0].target.id);
+  }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+  subAnchors.forEach(s => subObserver.observe(s));
+
+  // Smooth scroll for in-page anchor clicks
+  toc.addEventListener('click', function(e) {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', '#' + id);
+  });
+})();
+</script>
+
+</body>
+</html>

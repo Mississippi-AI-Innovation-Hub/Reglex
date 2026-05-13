@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Reglex">
+<meta name="theme-color" content="#FAF6EA">
+<title>Reglex · Scan for Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #FAF6EA;
+    --paper-deep:   #F2EAD3;
+    --ink:          #1A1410;
+    --ink-soft:     #4A3F32;
+    --ink-mute:     #6B5D4D;
+    --accent:       #8B2635;
+    --accent-deep:  #5A1A24;
+    --brass:        #A8895C;
+    --brass-soft:   #D4BE96;
+    --hairline:     rgba(26, 20, 16, 0.18);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+    overflow: hidden;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 0%, rgba(168, 137, 92, 0.08), transparent 60%),
+      radial-gradient(ellipse 65% 45% at 100% 100%, rgba(139, 38, 53, 0.06), transparent 60%),
+      var(--paper);
+    height: 100vh;
+    height: 100dvh;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: clamp(28px, 4vh, 48px) clamp(28px, 5vw, 56px);
+    position: relative;
+  }
+
+  /* faint paper grain */
+  body::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+    background-image:
+      radial-gradient(circle at 25% 30%, rgba(60, 45, 30, 0.025) 1px, transparent 2px),
+      radial-gradient(circle at 75% 70%, rgba(60, 45, 30, 0.02) 1px, transparent 2px);
+    background-size: 9px 9px, 13px 13px;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    text-align: center;
+    border-top: 5px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: clamp(18px, 3vh, 32px) 0 clamp(14px, 2.4vh, 26px);
+    position: relative;
+  }
+  .masthead::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid var(--ink);
+    margin-top: clamp(6px, 1vh, 10px);
+  }
+  .logotype {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(72px, 12vh, 132px);
+    letter-spacing: -0.045em;
+    line-height: 0.85;
+    font-variation-settings: "SOFT" 25, "opsz" 144;
+  }
+  .logotype .g {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(11px, 1.4vh, 15px);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: clamp(10px, 1.6vh, 18px);
+    font-weight: 500;
+  }
+  .kicker .accent { color: var(--accent); font-weight: 600; }
+
+  /* MAIN — QR */
+  .main {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    justify-items: center;
+    gap: clamp(16px, 2.4vh, 28px);
+    padding: clamp(20px, 3vh, 40px) 0;
+    position: relative;
+  }
+
+  .scan-call {
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(34px, 5.4vh, 60px);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: var(--ink);
+    font-variation-settings: "SOFT" 50, "opsz" 144;
+    position: relative;
+  }
+  .scan-call em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .scan-call .underline {
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 2px;
+  }
+
+  /* QR FRAME */
+  .qr-stage {
+    position: relative;
+    padding: 12px;
+    background: var(--paper);
+    border: 1px solid var(--hairline);
+  }
+  .qr-stage::before,
+  .qr-stage::after {
+    content: "";
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--accent);
+  }
+  .qr-stage::before {
+    top: -8px;
+    left: -8px;
+    border-right: none;
+    border-bottom: none;
+  }
+  .qr-stage::after {
+    bottom: -8px;
+    right: -8px;
+    border-left: none;
+    border-top: none;
+  }
+
+  .qr {
+    width: clamp(280px, 52vh, 480px);
+    height: clamp(280px, 52vh, 480px);
+    background: #fff;
+    border: 1px solid var(--ink);
+    padding: 14px;
+    box-shadow: 0 12px 32px -16px rgba(26, 20, 16, 0.45);
+    position: relative;
+  }
+  .qr img {
+    width: 100%;
+    height: 100%;
+    image-rendering: pixelated;
+    display: block;
+  }
+
+  .url {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(13px, 1.7vh, 17px);
+    letter-spacing: 0.06em;
+    color: var(--ink);
+    text-align: center;
+    padding: 6px 14px;
+    border: 1px solid var(--hairline);
+    background: var(--paper-deep);
+  }
+  .url .arrow { color: var(--accent); margin-right: 6px; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    border-top: 1px solid var(--ink);
+    padding-top: clamp(14px, 2vh, 22px);
+    position: relative;
+  }
+  .footer::before {
+    content: "";
+    display: block;
+    border-bottom: 1px solid var(--ink);
+    margin-bottom: clamp(10px, 1.4vh, 16px);
+    transform: translateY(-3px);
+  }
+  .footer-line {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(16px, 2.2vh, 24px);
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .footer-line strong {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .footer-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(10px, 1.3vh, 13px);
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-top: clamp(6px, 1vh, 10px);
+  }
+  .footer-meta .accent { color: var(--accent); font-weight: 600; }
+
+  /* LANDSCAPE TUNING */
+  @media (orientation: landscape) {
+    body {
+      grid-template-columns: 1fr 1.2fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "mast mast"
+        "main main"
+        "foot foot";
+    }
+    .masthead { grid-area: mast; }
+    .main { grid-area: main; }
+    .footer { grid-area: foot; }
+    .logotype { font-size: clamp(60px, 14vh, 110px); }
+    .qr { width: clamp(280px, 65vh, 460px); height: clamp(280px, 65vh, 460px); }
+  }
+</style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="logotype">Re<span class="g">g</span>lex</div>
+    <div class="kicker">Citation-Grounded · <span class="accent">Regulatory Research</span></div>
+  </header>
+
+  <main class="main">
+    <div class="scan-call">
+      Scan to watch the <em><span class="underline">live demo</span></em>
+    </div>
+
+    <div class="qr-stage">
+      <div class="qr">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAxgAAAMYAQMAAABys9MnAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAI0SURBVHic7c5BcsQwCARA///TzikKBqTdJLUnmoPLQmia6/58XQwGg8FgMBgMBoPBYDAYDMb/jKur2F//a7522gQGg8FgMBiMscb9rBpXx+LxlMBgMBgMBoMx1bi+q3YSmQYOCQwGg8FgMBiM9OYgrSODwWAwGAwG400jXa0Og8FgMBgMBuMdI1abEiPSw10Cg8FgMBgMxlijVpJeftsEBoPBYDAYjJnGruJou80yTiEMBoPBYDAYI434oKbUYwvH2zXDYDAYDAaDMdD4Oe+lNi6tWEMYDAaDwWAwZhr1cVTbDdLt7jmDwWAwGAzGZCP9xzcxZTfZrsVgMBgMBoMx1kh32weFTz+1GAwGg8FgMIYb6dkhtM6kL4PBYDAYDMZk49ENL9uqA2k43jIYDAaDwWAMNCqwS29nzjsxGAwGg8FgDDTSaHoTj+sbf2r6YwMGg8FgMBiMkUaMqM2dXZeIHQaDwWAwGIyxRsxqhrpmXWUbxWAwGAwGgzHPaCPWdLq9QiWgVxkMBoPBYDDmGXE6BsXEbcSzml0ZDAaDwWAw5hm7au0EJy/CDAaDwWAwGGONq6uU+Cv7ATMYDAaDwWCMNO5npfQDWf8ZDAaDwWAwGPEuxiV1B6dKDIPBYDAYDAYjdaIRO7XZbslgMBgMBoPBeEzsQ1syfRkMBoPBYDAmG7Gieui3a+V/BoPBYDAYjJFGrXQVjy8ZBoPBYDAYjOHGR4vBYDAYDAaDwWAwGAwGg8H4a30B3ak48D0GTrQAAAAASUVORK5CYII=" alt="QR · reglex-demo.vercel.app">
+      </div>
+    </div>
+
+    <div class="url"><span class="arrow">▸</span>reglex-demo.vercel.app</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-line">Built for the <strong>Mississippi Office of the Secretary of State</strong></div>
+    <div class="footer-meta">AI Innovation Hub <span class="accent">·</span> 2026</div>
+  </footer>
+
+</body>
+</html>

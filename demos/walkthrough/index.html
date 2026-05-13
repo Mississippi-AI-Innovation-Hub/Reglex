@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reglex · Demo</title>
+<meta name="description" content="Reglex — citation-grounded regulatory research for state agency staff. Built for the Mississippi Office of the Secretary of State.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:        #FAF6EA;
+    --paper-deep:   #F2EAD3;
+    --ink:          #1A1410;
+    --ink-soft:     #4A3F32;
+    --accent:       #8B2635;
+    --hairline:     rgba(26, 20, 16, 0.18);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(168, 137, 92, 0.06), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 100% 100%, rgba(139, 38, 53, 0.04), transparent 60%),
+      var(--paper);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .wrap {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 24px 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* MASTHEAD */
+  .masthead {
+    border-top: 4px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 18px 0 14px;
+    text-align: center;
+    position: relative;
+    margin-bottom: 4px;
+  }
+  .masthead::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid var(--ink);
+    margin-top: 6px;
+  }
+  .logo {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: clamp(48px, 9vw, 78px);
+    letter-spacing: -0.045em;
+    line-height: 0.85;
+    font-variation-settings: "SOFT" 25, "opsz" 144;
+  }
+  .logo .g {
+    color: var(--accent);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* TAGLINE */
+  .tagline {
+    text-align: center;
+    margin: 22px auto 8px;
+    max-width: 720px;
+  }
+  .tagline .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .tagline h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: clamp(24px, 3.6vw, 34px);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .tagline h1 em { font-style: italic; color: var(--accent); }
+
+  /* VIDEO */
+  .video-wrap {
+    margin: 28px auto 0;
+    width: 100%;
+    border: 1px solid var(--ink);
+    background: #000;
+    box-shadow: 0 18px 48px -22px rgba(26, 20, 16, 0.55);
+    position: relative;
+  }
+  .video-wrap::before {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border: 1px solid var(--hairline);
+    pointer-events: none;
+  }
+  video {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* CAPTION */
+  .caption {
+    margin: 18px auto 0;
+    max-width: 760px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .caption strong { font-style: normal; font-weight: 600; color: var(--ink); }
+
+  /* FOOTER */
+  footer {
+    margin-top: auto;
+    padding: 28px 0 0;
+    border-top: 1px solid var(--ink);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  footer .accent { color: var(--accent); font-weight: 600; }
+  footer a { color: inherit; text-decoration: none; }
+  footer a:hover { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .wrap { padding: 20px 16px 32px; }
+    .masthead { padding: 14px 0 10px; }
+    .tagline { margin-top: 16px; }
+    .video-wrap { margin-top: 20px; }
+    footer { flex-direction: column; gap: 6px; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+
+    <header class="masthead">
+      <div class="logo">Re<span class="g">g</span>lex</div>
+    </header>
+
+    <section class="tagline">
+      <div class="kicker">Demo · 1m 45s</div>
+      <h1>Verifiable answers from <em>statutes, rules,</em> and the regulatory record.</h1>
+    </section>
+
+    <div class="video-wrap">
+      <video controls autoplay muted loop playsinline preload="auto" poster="">
+        <source src="/Demo.mp4" type="video/mp4">
+        Your browser does not support video playback. <a href="/Demo.mp4">Download the file</a>.
+      </video>
+    </div>
+
+    <p class="caption">
+      A walkthrough of <strong>Reglex</strong>, built for the Mississippi Office of the Secretary of State as part of the AI Innovation Hub regulatory technology pilot.
+    </p>
+
+    <footer>
+      <span>Reglex</span>
+      <span class="accent">Mississippi Secretary of State</span>
+      <span>AI Innovation Hub · 2026</span>
+    </footer>
+
+  </div>
+</body>
+</html>

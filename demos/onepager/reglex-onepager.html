@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reglex · Citation-Grounded Regulatory Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..900,0..100;1,9..144,300..900,0..100&family=Public+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  @page { size: letter portrait; margin: 0; }
+
+  :root {
+    --paper:        #FFFFFF;
+    --paper-deep:   #FFFFFF;
+    --ink:          #000000;
+    --ink-soft:     #2A2A2A;
+    --accent:       #000000;
+    --brass-soft:   #FFFFFF;
+    --hairline:     rgba(0, 0, 0, 0.22);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Public Sans', system-ui, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.42;
+  }
+
+  body {
+    background: var(--paper);
+  }
+
+  .sheet {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: 0.32in 0.55in 0.4in;
+    display: flex;
+    flex-direction: column;
+  }
+  .sheet > .footer { margin-top: auto; }
+
+  /* MASTHEAD */
+  .masthead {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+    padding: 10pt 0 8pt;
+    text-align: center;
+    position: relative;
+  }
+  .masthead::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid var(--ink);
+    margin-top: 4pt;
+  }
+
+  .logotype {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 60pt;
+    letter-spacing: -0.045em;
+    line-height: 0.85;
+    font-variation-settings: "SOFT" 25, "opsz" 144;
+    text-align: center;
+  }
+  .logotype .glyph { color: var(--accent); font-style: italic; font-weight: 400; }
+
+  /* HERO */
+  .hero {
+    padding: 12pt 0 10pt;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .hero-headline {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 30pt;
+    line-height: 1;
+    letter-spacing: -0.022em;
+    font-variation-settings: "SOFT" 50;
+    max-width: 7in;
+  }
+  .hero-headline em { font-style: italic; color: var(--accent); }
+  .hero-headline .underline { border-bottom: 2px solid var(--accent); padding-bottom: 1pt; }
+
+  /* PROBLEM / SOLUTION */
+  .ps {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    margin-top: 8pt;
+    border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline);
+  }
+  .ps > div {
+    padding: 10pt 16pt 10pt 0;
+  }
+  .ps > div + div {
+    padding: 10pt 0 10pt 20pt;
+    border-left: 1px solid var(--hairline);
+  }
+  .ps-lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.4pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 5pt;
+  }
+  .ps-lab.problem { color: var(--ink); }
+  .ps-lab.solution { color: var(--accent); }
+  .ps-body {
+    font-family: 'Fraunces', serif;
+    font-size: 11.5pt;
+    line-height: 1.4;
+    color: var(--ink);
+    font-weight: 400;
+  }
+  .ps-body strong { font-weight: 600; }
+  .ps-body em { font-style: italic; color: var(--accent); }
+
+  /* SECTION HEAD */
+  .head {
+    display: flex;
+    align-items: baseline;
+    gap: 10pt;
+    margin: 10pt 0 6pt;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.8pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .head .num {
+    color: var(--accent);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 13pt;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .head .rule { flex: 1; height: 1px; background: var(--ink); opacity: 0.55; }
+
+  /* PIPELINE */
+  .pipeline {
+    background: var(--paper-deep);
+    border: 1px solid var(--ink);
+    padding: 11pt 14pt 10pt;
+    position: relative;
+  }
+  .pipeline-label {
+    position: absolute;
+    top: -7pt; left: 12pt;
+    background: var(--paper);
+    padding: 0 5pt;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; }
+  .stage {
+    padding: 0 8pt;
+    border-left: 1px dashed rgba(26, 20, 16, 0.25);
+  }
+  .stage:first-child { border-left: none; padding-left: 0; }
+  .stage .step {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.4pt;
+    letter-spacing: 0.22em;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 3pt;
+  }
+  .stage .ttl {
+    font-family: 'Fraunces', serif;
+    font-size: 12pt;
+    font-weight: 500;
+    line-height: 1.05;
+    margin-bottom: 3pt;
+    letter-spacing: -0.01em;
+  }
+  .stage .det {
+    font-size: 8.4pt;
+    line-height: 1.4;
+    color: var(--ink-soft);
+  }
+  .arrows { width: 100%; height: 14pt; margin-top: 5pt; }
+
+  /* CAPABILITIES */
+  .caps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+  .cap {
+    padding: 10pt 11pt;
+    border-right: 1px solid var(--hairline);
+  }
+  .cap:last-child { border-right: none; }
+  .cap-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22pt;
+    line-height: 1;
+    color: var(--accent);
+    margin-bottom: 3pt;
+    letter-spacing: -0.03em;
+  }
+  .cap-ttl {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 12pt;
+    line-height: 1.1;
+    margin-bottom: 3pt;
+    letter-spacing: -0.01em;
+  }
+  .cap-body {
+    font-size: 9pt;
+    line-height: 1.42;
+    color: var(--ink-soft);
+  }
+
+  /* NUMBERS */
+  .numbers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background: var(--ink);
+    color: var(--paper);
+    padding: 11pt 4pt;
+    margin-top: 8pt;
+  }
+  .num {
+    text-align: center;
+    border-right: 1px solid rgba(250, 246, 234, 0.15);
+    padding: 0 6pt;
+  }
+  .num:last-child { border-right: none; }
+  .num-fig {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-size: 38pt;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--brass-soft);
+  }
+  .num-fig .u { font-size: 13pt; color: var(--paper); font-weight: 300; }
+  .num-lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brass-soft);
+    margin-top: 5pt;
+    line-height: 1.2;
+    opacity: 0.9;
+  }
+
+  /* FOOTER */
+  .footer {
+    display: grid;
+    grid-template-columns: 1.1fr 1.2fr auto;
+    gap: 18pt;
+    margin-top: 10pt;
+    padding-top: 8pt;
+    border-top: 1px solid var(--ink);
+    align-items: start;
+  }
+  .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 7.2pt;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 5pt;
+  }
+  .stack {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12pt;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.4pt;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .stack li::before { content: "▸ "; color: var(--accent); }
+  .built {
+    font-size: 8.8pt;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .built strong { color: var(--ink); font-weight: 600; }
+
+  .qr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .qr-frame {
+    width: 70pt; height: 70pt;
+    border: 1px solid var(--ink);
+    padding: 3pt;
+    background: #fff;
+  }
+  .qr-frame svg, .qr-frame img { width: 100%; height: 100%; image-rendering: pixelated; }
+  .qr-cap {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 6.8pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    margin-top: 5pt;
+    text-align: center;
+  }
+
+  @media print {
+    body { background: var(--paper) !important; }
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    .pipeline, .caps, .numbers, .footer { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <header class="masthead">
+    <div class="logotype">Re<span class="glyph">g</span>lex</div>
+  </header>
+
+  <section class="hero">
+    <h1 class="hero-headline">
+      Verifiable answers from <em>statutes, rules,</em> and the <span class="underline">regulatory record</span>.
+    </h1>
+  </section>
+
+  <section class="ps">
+    <div>
+      <div class="ps-lab problem">The Problem</div>
+      <div class="ps-body">
+        State agency staff lose hours to <strong>fragmented regulatory sources</strong>. Statutes, rules, fees, and authority sit across dozens of official sites, creating inconsistent compliance and making cross-state analysis impractical.
+      </div>
+    </div>
+    <div>
+      <div class="ps-lab solution">The Solution</div>
+      <div class="ps-body">
+        Reglex consolidates those sources into a <em>citation-grounded</em> research assistant. Staff query in plain English, get verified answers with inline source links, and compare regulations across states in seconds.
+      </div>
+    </div>
+  </section>
+
+  <h2 class="head"><span class="num">i.</span><span>How It Works</span><span class="rule"></span></h2>
+  <div class="pipeline">
+    <span class="pipeline-label">Pipeline · ingest to answer</span>
+    <div class="flow">
+      <div class="stage">
+        <div class="step">01 · Sources</div>
+        <div class="ttl">Agency Sites</div>
+        <div class="det">Crawlers ingest statutes, rules, fees from official sources.</div>
+      </div>
+      <div class="stage">
+        <div class="step">02 · Compress</div>
+        <div class="ttl">LLM Extraction</div>
+        <div class="det">Bedrock distills each doc into structured fields.</div>
+      </div>
+      <div class="stage">
+        <div class="step">03 · Index</div>
+        <div class="ttl">Hybrid Store</div>
+        <div class="det">OpenSearch holds vectors and BM25 side-by-side.</div>
+      </div>
+      <div class="stage">
+        <div class="step">04 · Reason</div>
+        <div class="ttl">Agent Router</div>
+        <div class="det">Intent dispatches to compare, fee, or authority agents.</div>
+      </div>
+      <div class="stage">
+        <div class="step">05 · Answer</div>
+        <div class="ttl">Cited Reply</div>
+        <div class="det">Reflection verifies every citation before delivery.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 class="head"><span class="num">ii.</span><span>What It Does</span><span class="rule"></span></h2>
+  <div class="caps">
+    <div class="cap">
+      <div class="cap-num">01</div>
+      <div class="cap-ttl">Hybrid Search</div>
+      <div class="cap-body">Semantic and keyword retrieval, fused. Find the passage by section number or by gist.</div>
+    </div>
+    <div class="cap">
+      <div class="cap-num">02</div>
+      <div class="cap-ttl">Cross-State Compare</div>
+      <div class="cap-body">Side-by-side licensing, penalty, and authority across jurisdictions in one query.</div>
+    </div>
+    <div class="cap">
+      <div class="cap-num">03</div>
+      <div class="cap-ttl">Authority Tracing</div>
+      <div class="cap-body">Surfaces statutory authority and flags potential <em>ultra vires</em> conditions.</div>
+    </div>
+    <div class="cap">
+      <div class="cap-num">04</div>
+      <div class="cap-ttl">Cited &amp; Auditable</div>
+      <div class="cap-body">Inline source links, verification step, full retrieval trail. No claim without an anchor.</div>
+    </div>
+  </div>
+
+  <div class="numbers">
+    <div class="num"><div class="num-fig">7</div><div class="num-lab">States Indexed</div></div>
+    <div class="num"><div class="num-fig">21</div><div class="num-lab">Agency Sources</div></div>
+    <div class="num"><div class="num-fig">100<span class="u">%</span></div><div class="num-lab">Open Source</div></div>
+  </div>
+
+  <footer class="footer">
+    <div>
+      <div class="lab">The Stack</div>
+      <ul class="stack">
+        <li>AWS Lambda</li>
+        <li>Bedrock</li>
+        <li>OpenSearch</li>
+        <li>Mistral · Nova</li>
+        <li>Python</li>
+        <li>React + Vite</li>
+      </ul>
+    </div>
+    <div>
+      <div class="lab">Built For</div>
+      <div class="built"><strong>Mississippi Office of the Secretary of State.</strong> Built for the AI Innovation Hub regulatory technology pilot. Open-source and extensible to additional states with minimal re-work.</div>
+    </div>
+    <div class="qr">
+      <div class="qr-frame">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXQAAAF0AQMAAAAJrVAQAAAABlBMVEUAAAD///+l2Z/dAAAAAnRSTlP//8i138cAAAAJcEhZcwAACxIAAAsSAdLdfvwAAAGJSURBVHic7dhbrsMgDEVRz4D5z5IZcFX8JvQq/d9WVSVhOV9HmFbWbyV4fPNToj73Y9n3lLgoAI8/vUVpWq9eW7t0gMc/va72gOnz9h48/rW3i4HHv/Z67cMOj3/lc5ytbNmVvdf5iMfr7iQtcscnAR5/+KN22LRX6mHbA4jHN1+jpY8UjxW7li7tWzz+5utJu3pNXQ4+PL77HTCJX2dx60kTn4MiePzFa5yiJQImMe/qfoXH9/ll6Zo1V9nb2vH4q4/NqqeuhW3i8Q8fVc5ImbplL8m84fHdf9ZGee6T7sih+HzE45uv865mT4ed71eZNzy+7z/RFSZeYqvWiMd3HzHbS8ceVZKW5208Pr1n7AxYnpFW3OLxp/fTtS3dRl504fGnrzW9fdghPF9iOcTju/ewSTk12ap/xxvw+KfPsO2y3sBr4fH/+ZIrXbIQxkVGEY//7n2/UqxMbz2NePx3H59Vz0grsofHX7yW583CVn7vy7Ff4fHFR2XA6j+NGrzr+RyP/63w+Fp/3JDxBnX6OyAAAAAASUVORK5CYII=" alt="QR · reglex-demo.vercel.app">
+      </div>
+      <div class="qr-cap">Scan for<br>Live Demo</div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

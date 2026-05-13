@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* === Reglex deck — Google keynote design system === */
+
+@theme {
+  /* Typography */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: var(--font-roboto-mono), ui-monospace, "JetBrains Mono",
+    "Fira Code", Menlo, Monaco, Consolas, monospace;
+
+  /* Surfaces */
+  --color-canvas: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-surface-2: #f1f3f4;
+
+  /* Ink — never pure black */
+  --color-ink: #202124;
+  --color-ink-muted: #5f6368;
+  --color-ink-subtle: #80868b;
+  --color-line: #dadce0;
+  --color-line-soft: #e8eaed;
+
+  /* Google brand accents — use sparingly */
+  --color-g-blue: #4285f4;
+  --color-g-red: #ea4335;
+  --color-g-yellow: #fbbc04;
+  --color-g-green: #34a853;
+}
+
+html,
+body {
+  height: 100%;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: var(--font-sans);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Scroll-snap deck container */
+.deck-scroll {
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-behavior: smooth;
+}
+.deck-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.slide-pane {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* The thin Google four-color rule — utility */
+.g-rule {
+  height: 3px;
+  width: 64px;
+  background: linear-gradient(
+    to right,
+    var(--color-g-blue) 0% 25%,
+    var(--color-g-red) 25% 50%,
+    var(--color-g-yellow) 50% 75%,
+    var(--color-g-green) 75% 100%
+  );
+  border-radius: 2px;
+}
+
+.g-rule-thin {
+  height: 2px;
+  width: 48px;
+  background: var(--color-g-blue);
+}
+
+/* Tabular figures for stat numbers */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

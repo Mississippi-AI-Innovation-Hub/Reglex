@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reglex · SoS AI Innovation Hub Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT@0,9..144,300..700,0..100;1,9..144,300..700,0..100&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #EFF1E8;
+  --bg-deep: #E5E8DC;
+  --ink: #1B2D1F;
+  --ink-muted: #5A6B5E;
+  --green: #0A4F1A;
+  --green-deep: #053315;
+  --gold: #C8A046;
+  --gold-soft: rgba(200, 160, 70, 0.16);
+  --line: rgba(10, 79, 26, 0.18);
+  --card-bg: rgba(255, 255, 255, 0.55);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+main {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.deck {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  transition: transform 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+
+.slide {
+  flex: 0 0 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(2rem, 5vh, 4.5rem) clamp(2rem, 6vw, 6.5rem);
+}
+
+/* Right-edge diagonal lines — recurring brand motif from Phase 1 deck */
+.slide::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 32%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    -68deg,
+    transparent 0,
+    transparent 14px,
+    var(--line) 14px,
+    var(--line) 15px
+  );
+  -webkit-mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  mask-image: linear-gradient(to left, black 0%, transparent 100%);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.brand {
+  position: absolute;
+  top: clamp(1.4rem, 3vh, 2.2rem);
+  left: clamp(2rem, 6vw, 6.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.75rem, 0.95vw, 0.88rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--green);
+  z-index: 5;
+}
+.brand .dot { color: var(--gold); margin: 0 0.4em; }
+
+.slide-num {
+  position: absolute;
+  bottom: clamp(1.4rem, 3vh, 2.2rem);
+  right: clamp(2rem, 6vw, 6.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.75rem, 0.95vw, 0.88rem);
+  letter-spacing: 0.14em;
+  color: var(--ink-muted);
+  z-index: 5;
+}
+
+.phase-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.78rem, 0.98vw, 0.92rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: clamp(2.5rem, 5vh, 3.5rem);
+  margin-bottom: clamp(0.8rem, 1.6vh, 1.3rem);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-weight: 500;
+}
+.phase-tag::before {
+  content: '';
+  display: inline-block;
+  width: clamp(2rem, 3vw, 3rem);
+  height: 1px;
+  background: var(--gold);
+}
+
+h2.section-title {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.8vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.022em;
+  color: var(--green-deep);
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  margin-bottom: clamp(1rem, 2.2vh, 1.8rem);
+  max-width: 22ch;
+}
+
+p.lede {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.05rem, 1.5vw, 1.4rem);
+  line-height: 1.45;
+  color: var(--green);
+  max-width: 56ch;
+  margin-bottom: clamp(1rem, 2vh, 1.5rem);
+}
+
+/* === Reveal === */
+.reveal > * {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.slide.active.reveal > * { opacity: 1; transform: translateY(0); }
+.slide.active.reveal > *:nth-child(2) { transition-delay: 0.08s; }
+.slide.active.reveal > *:nth-child(3) { transition-delay: 0.16s; }
+.slide.active.reveal > *:nth-child(4) { transition-delay: 0.24s; }
+.slide.active.reveal > *:nth-child(5) { transition-delay: 0.32s; }
+.slide.active.reveal > *:nth-child(6) { transition-delay: 0.40s; }
+
+/* === Slide 1 — Title === */
+.title-slide { justify-content: center; }
+.title-slide .eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.95vw, 0.88rem);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: clamp(1.5rem, 3vh, 2rem);
+}
+.title-slide .reglex-mark {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: clamp(4.5rem, 13vw, 11rem);
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--green-deep);
+  font-variation-settings: "opsz" 144;
+}
+.title-slide .reglex-mark .x {
+  color: var(--gold);
+  font-style: italic;
+  font-weight: 500;
+}
+.title-slide .sub {
+  margin-top: clamp(1.2rem, 2.5vh, 1.8rem);
+  font-family: 'Fraunces', serif;
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.9vw, 1.7rem);
+  color: var(--green);
+  max-width: 48ch;
+  line-height: 1.4;
+}
+.title-slide .meta {
+  margin-top: clamp(2rem, 4.5vh, 3.5rem);
+  display: flex;
+  gap: clamp(1.5rem, 3.5vw, 3.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.9vw, 0.82rem);
+  color: var(--ink-muted);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* === Team === */
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.2rem, 2.5vw, 2.5rem) clamp(2rem, 4vw, 4rem);
+  max-width: 78%;
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+}
+.team-card {
+  border-top: 1px solid var(--line);
+  padding-top: clamp(0.8rem, 1.6vh, 1.2rem);
+}
+.team-card .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.75rem, 0.95vw, 0.88rem);
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
+.team-card .name {
+  margin-top: clamp(0.2rem, 0.5vh, 0.35rem);
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.4rem, 2.1vw, 1.95rem);
+  color: var(--green-deep);
+  letter-spacing: -0.012em;
+  line-height: 1.05;
+}
+
+/* === Mission === */
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 92%;
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+}
+.mission-pillar { display: flex; flex-direction: column; gap: clamp(0.6rem, 1.2vh, 1rem); }
+.mission-pillar .icon {
+  width: clamp(2.2rem, 3.5vw, 3rem);
+  height: clamp(2.2rem, 3.5vw, 3rem);
+  border: 1px solid var(--green);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: 'Fraunces', serif;
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  color: var(--green);
+  font-weight: 500;
+}
+.mission-pillar h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.45rem, 2.2vw, 1.9rem);
+  color: var(--green-deep);
+  letter-spacing: -0.012em;
+}
+.mission-pillar p {
+  font-size: clamp(1.05rem, 1.3vw, 1.22rem);
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 32ch;
+}
+
+/* === Problem === */
+.problem-layout {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: clamp(2rem, 4.5vw, 4.5rem);
+  align-items: center;
+  flex: 1;
+  margin-top: clamp(0.5rem, 1vh, 1rem);
+  padding-bottom: clamp(2rem, 4vh, 3rem);
+}
+.problem-quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--green);
+  border-left: 2px solid var(--gold);
+  padding-left: clamp(1.2rem, 2.2vw, 2.2rem);
+}
+.risks { display: flex; flex-direction: column; gap: clamp(0.7rem, 1.4vh, 1rem); }
+.risk {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 1.4vw, 1.4rem);
+  padding: clamp(0.7rem, 1.3vh, 1rem) clamp(0.9rem, 1.5vw, 1.4rem);
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.risk .marker {
+  width: 7px; height: 7px;
+  background: var(--gold);
+  flex-shrink: 0;
+  transform: rotate(45deg);
+}
+.risk .text {
+  font-size: clamp(1.02rem, 1.25vw, 1.18rem);
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* === Capability grids === */
+.cap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(1rem, 1.8vw, 1.8rem);
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+}
+.cap-grid.six { grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, auto); }
+
+.cap-card {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1vh, 0.8rem);
+  padding-top: clamp(0.9rem, 1.7vh, 1.3rem);
+  border-top: 1px solid var(--green);
+}
+.cap-card .num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.78rem, 0.95vw, 0.9rem);
+  color: var(--gold);
+  letter-spacing: 0.2em;
+}
+.cap-card h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.18rem, 1.55vw, 1.45rem);
+  color: var(--green-deep);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+.cap-card p {
+  font-size: clamp(0.98rem, 1.18vw, 1.12rem);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* === Hero stat === */
+.stat-slide { justify-content: center; }
+.stat-slide .stat-number {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(7rem, 19vw, 18rem);
+  line-height: 0.85;
+  color: var(--green-deep);
+  letter-spacing: -0.05em;
+  font-variation-settings: "opsz" 144;
+}
+.stat-slide .stat-number .pct { color: var(--gold); }
+.stat-slide .stat-headline {
+  margin-top: clamp(1.2rem, 2.5vh, 2rem);
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: clamp(1.3rem, 2.2vw, 1.95rem);
+  color: var(--green);
+  max-width: 38ch;
+  line-height: 1.3;
+}
+.stat-slide .stat-sub {
+  margin-top: clamp(0.8rem, 1.6vh, 1.2rem);
+  font-size: clamp(1.08rem, 1.3vw, 1.22rem);
+  color: var(--ink-muted);
+  max-width: 50ch;
+  line-height: 1.5;
+}
+
+/* === Phase 2 Result (multi-stat) === */
+.p2-result-slide { justify-content: center; }
+.p2-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(2.5rem, 5vw, 5rem);
+  align-items: center;
+  margin-top: clamp(1.2rem, 2.5vh, 1.8rem);
+}
+.p2-headline-stat {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(5.5rem, 13vw, 12rem);
+  line-height: 0.85;
+  color: var(--green-deep);
+  letter-spacing: -0.045em;
+  font-variation-settings: "opsz" 144;
+}
+.p2-headline-stat .of-ten {
+  font-size: 0.32em;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+  margin-left: 0.15em;
+  vertical-align: 0.55em;
+}
+.p2-headline-label {
+  margin-top: clamp(0.6rem, 1.4vh, 1rem);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2vw, 1.7rem);
+  color: var(--green);
+  max-width: 22ch;
+  line-height: 1.25;
+}
+.p2-headline-sub {
+  margin-top: clamp(0.7rem, 1.4vh, 1rem);
+  font-size: clamp(1rem, 1.22vw, 1.15rem);
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 30ch;
+}
+.p2-axis-list { display: flex; flex-direction: column; gap: clamp(0.9rem, 1.8vh, 1.4rem); }
+.p2-axis-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.5rem;
+  align-items: baseline;
+  border-top: 1px solid var(--line);
+  padding-top: clamp(0.7rem, 1.3vh, 1rem);
+}
+.p2-axis-row .ax-label {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.05rem, 1.45vw, 1.35rem);
+  color: var(--green-deep);
+  letter-spacing: -0.01em;
+}
+.p2-axis-row .ax-label .desc {
+  display: block;
+  font-family: 'Inter', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: clamp(0.85rem, 1.02vw, 0.95rem);
+  color: var(--ink-muted);
+  margin-top: 0.18rem;
+  letter-spacing: 0;
+  max-width: 32ch;
+  line-height: 1.45;
+}
+.p2-axis-row .ax-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: clamp(1.4rem, 1.9vw, 1.85rem);
+  color: var(--gold);
+  letter-spacing: -0.01em;
+}
+.p2-result-foot {
+  margin-top: clamp(1.5rem, 3vh, 2.2rem);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: clamp(1.02rem, 1.3vw, 1.22rem);
+  color: var(--green);
+  max-width: 78ch;
+  line-height: 1.5;
+}
+
+/* === Freshness loop diagram === */
+.freshness-slide { justify-content: flex-start; }
+.freshness-flow {
+  margin-top: clamp(1.2rem, 2.5vh, 2rem);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(0.6rem, 1.2vw, 1rem);
+  align-items: stretch;
+  max-width: 96%;
+}
+.flow-node {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1vh, 0.8rem);
+  padding: clamp(1rem, 2vh, 1.5rem) clamp(0.9rem, 1.4vw, 1.3rem);
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--green);
+  border-radius: 4px;
+  position: relative;
+}
+.flow-node .step-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.68rem, 0.85vw, 0.78rem);
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+.flow-node h4 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.05rem, 1.4vw, 1.32rem);
+  color: var(--green-deep);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+}
+.flow-node p {
+  font-size: clamp(0.9rem, 1.05vw, 1rem);
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+.flow-arrow {
+  position: absolute;
+  top: 50%;
+  right: -0.7rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  border-radius: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.freshness-foot {
+  margin-top: clamp(1.5rem, 3vh, 2.2rem);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  max-width: 96%;
+}
+.freshness-foot .footcard {
+  border-left: 2px solid var(--gold);
+  padding-left: clamp(1rem, 1.6vw, 1.5rem);
+}
+.freshness-foot .footcard .ft-lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.88vw, 0.82rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+}
+.freshness-foot .footcard p {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: clamp(1rem, 1.25vw, 1.18rem);
+  line-height: 1.45;
+  color: var(--green);
+}
+
+@media (max-width: 900px) {
+  .p2-hero { grid-template-columns: 1fr; gap: 1.5rem; }
+  .freshness-flow { grid-template-columns: 1fr; }
+  .flow-arrow { display: none; }
+  .freshness-foot { grid-template-columns: 1fr; }
+}
+
+/* === Bridge === */
+.bridge-slide { justify-content: center; }
+.bridge-slide .question {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(2.2rem, 4.8vw, 4.2rem);
+  line-height: 1.05;
+  color: var(--green-deep);
+  letter-spacing: -0.022em;
+  max-width: 22ch;
+  font-variation-settings: "opsz" 144;
+}
+.bridge-slide .question .accent { color: var(--gold); font-style: italic; }
+.bridge-slide .answer {
+  margin-top: clamp(1.5rem, 3.5vh, 2.5rem);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.12rem, 1.4vw, 1.32rem);
+  line-height: 1.6;
+  color: var(--ink-muted);
+  max-width: 58ch;
+}
+
+/* === Three pillars === */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(2rem, 4vw, 3.5rem);
+  flex: 1;
+  align-content: center;
+  padding-bottom: clamp(2rem, 4vh, 3rem);
+}
+.pillar { display: flex; flex-direction: column; gap: clamp(0.7rem, 1.4vh, 1.1rem); }
+.pillar .pill-num {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(2.2rem, 3.8vw, 3.2rem);
+  color: var(--gold);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+.pillar h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.3rem, 2vw, 1.8rem);
+  color: var(--green-deep);
+  line-height: 1.1;
+  letter-spacing: -0.015em;
+}
+.pillar p {
+  font-size: clamp(1.05rem, 1.25vw, 1.2rem);
+  line-height: 1.6;
+  color: var(--ink-muted);
+  max-width: 32ch;
+}
+
+/* === Chain === */
+.chain-slide { justify-content: center; }
+.chain {
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1.2rem, 2.5vh, 2rem);
+}
+.chain-row {
+  display: grid;
+  grid-template-columns: clamp(90px, 12vw, 130px) 1fr;
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  align-items: center;
+}
+.chain-row .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--gold);
+  border-radius: 2px;
+  text-align: center;
+  font-weight: 500;
+}
+.chain-row .flow {
+  font-family: 'Fraunces', serif;
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2vw, 1.7rem);
+  color: var(--green-deep);
+  line-height: 1.35;
+  letter-spacing: -0.012em;
+}
+.chain-row .flow .tok {
+  display: inline-block;
+  padding: 0.05em 0.4em;
+  background: var(--gold-soft);
+  border-radius: 3px;
+  margin: 0 0.05em;
+  font-style: italic;
+  color: var(--green-deep);
+}
+.chain-foot {
+  margin-top: clamp(1.5rem, 3.5vh, 2.5rem);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.5vw, 1.4rem);
+  color: var(--green);
+  text-align: center;
+  max-width: 56ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* === Live demo === */
+.demo-slide {
+  justify-content: center;
+  align-items: center;
+}
+.demo-slide .demo-text {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(4.5rem, 11vw, 9rem);
+  color: var(--green-deep);
+  letter-spacing: -0.04em;
+  font-variation-settings: "opsz" 144;
+}
+.demo-slide .demo-text .live-dot {
+  display: inline-block;
+  width: clamp(0.7rem, 1.3vw, 1rem);
+  height: clamp(0.7rem, 1.3vw, 1rem);
+  background: var(--gold);
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: clamp(0.6rem, 1.2vw, 1.1rem);
+  animation: pulse 2s ease-in-out infinite;
+  transform: translateY(-0.15em);
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: translateY(-0.15em) scale(1); }
+  50% { opacity: 0.45; transform: translateY(-0.15em) scale(1.25); }
+}
+
+/* === Cost === */
+.cost-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.8rem, 3.5vw, 3.5rem);
+  margin-top: clamp(1rem, 2vh, 1.5rem);
+}
+.cost-card {
+  border-top: 2px solid var(--green);
+  padding-top: clamp(1rem, 1.8vh, 1.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.5rem, 1vh, 0.8rem);
+}
+.cost-card .lbl {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.75rem, 0.95vw, 0.88rem);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+.cost-card .amount {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(2.2rem, 4.5vw, 3.6rem);
+  color: var(--green-deep);
+  line-height: 1;
+  letter-spacing: -0.025em;
+  font-variation-settings: "opsz" 144;
+}
+.cost-card .amount .unit { color: var(--gold); font-size: 0.62em; }
+.cost-card .desc {
+  font-size: clamp(1rem, 1.18vw, 1.12rem);
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+.cost-foot {
+  margin-top: clamp(1.5rem, 3vh, 2.5rem);
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: clamp(1.1rem, 1.4vw, 1.32rem);
+  color: var(--green);
+  max-width: 70ch;
+  line-height: 1.5;
+}
+
+/* === Cost detail tables === */
+.cost-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(1.5rem, 3vw, 2.8rem);
+  margin-top: clamp(1.2rem, 2.4vh, 2rem);
+}
+.cost-detail-table {
+  border: 1px solid var(--line);
+  background: var(--card-bg);
+  padding: clamp(1rem, 2vh, 1.5rem) clamp(1.1rem, 1.8vw, 1.6rem);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+}
+.cost-detail-table.pilot { border-top: 3px solid var(--gold); }
+.cost-detail-table.prod  { border-top: 3px solid var(--green); }
+.cost-detail-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-bottom: clamp(0.5rem, 1vh, 0.75rem);
+  border-bottom: 1px solid var(--line);
+  margin-bottom: clamp(0.5rem, 1vh, 0.75rem);
+}
+.cost-detail-header h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 1.55vw, 1.4rem);
+  color: var(--green-deep);
+  letter-spacing: -0.012em;
+}
+.cost-detail-header .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.6rem, 0.75vw, 0.7rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.cost-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.8rem;
+  align-items: baseline;
+  padding: clamp(0.32rem, 0.6vh, 0.45rem) 0;
+}
+.cost-line .lbl {
+  font-size: clamp(0.92rem, 1.1vw, 1.04rem);
+  color: var(--ink);
+  line-height: 1.3;
+}
+.cost-line .lbl .sub {
+  display: block;
+  font-size: clamp(0.74rem, 0.9vw, 0.84rem);
+  color: var(--ink-muted);
+  margin-top: 0.1rem;
+  line-height: 1.4;
+}
+.cost-line .amt {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.92rem, 1.12vw, 1.05rem);
+  color: var(--green-deep);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.cost-line.total {
+  border-top: 1px solid var(--green);
+  padding-top: clamp(0.5rem, 1vh, 0.75rem);
+  margin-top: auto;
+}
+.cost-line.total .lbl {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.02rem, 1.25vw, 1.18rem);
+  color: var(--green-deep);
+}
+.cost-line.total .amt {
+  font-family: 'Fraunces', serif;
+  font-size: clamp(1.3rem, 1.7vw, 1.55rem);
+  color: var(--gold);
+  font-weight: 500;
+  letter-spacing: -0.012em;
+}
+@media (max-width: 900px) {
+  .cost-detail-grid { grid-template-columns: 1fr; gap: 1rem; }
+}
+
+/* === Scope list (reuses cost-detail-grid shell) === */
+.scope-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.scope-list li {
+  font-size: clamp(0.9rem, 1.08vw, 1rem);
+  color: var(--ink-muted);
+  line-height: 1.45;
+  padding: clamp(0.55rem, 1.1vh, 0.8rem) 0;
+  border-bottom: 1px dotted var(--line);
+}
+.scope-list li:last-child { border-bottom: none; padding-bottom: 0.2rem; }
+.scope-list li strong {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  color: var(--green-deep);
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
+  letter-spacing: -0.008em;
+}
+
+/* === Closing === */
+.closing-slide { justify-content: center; }
+.closing-slide .quote {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+  line-height: 1.2;
+  color: var(--green-deep);
+  max-width: 24ch;
+  letter-spacing: -0.018em;
+  font-variation-settings: "opsz" 144;
+}
+.closing-slide .quote-attr {
+  margin-top: clamp(1.2rem, 2.5vh, 1.8rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.9vw, 0.85rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.closing-slide .closing-tag {
+  margin-top: clamp(2rem, 4.5vh, 3.5rem);
+  font-family: 'Inter', sans-serif;
+  font-size: clamp(1.08rem, 1.32vw, 1.25rem);
+  color: var(--ink-muted);
+  max-width: 58ch;
+  line-height: 1.6;
+}
+.closing-slide .signature {
+  margin-top: clamp(1.5rem, 3vh, 2.2rem);
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-style: italic;
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  color: var(--gold);
+  letter-spacing: -0.022em;
+  font-variation-settings: "opsz" 144;
+}
+
+/* === Thanks === */
+.thanks-grid {
+  margin-top: clamp(2rem, 4vh, 3rem);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: clamp(1.2rem, 2.5vw, 2.2rem);
+}
+.thanks-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: clamp(0.4rem, 0.8vh, 0.6rem);
+  padding: clamp(1.2rem, 2.5vh, 2rem) clamp(0.8rem, 1.4vw, 1.4rem);
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+.thanks-card .org-mark {
+  font-family: 'Fraunces', serif;
+  font-weight: 600;
+  font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+  color: var(--green-deep);
+  letter-spacing: -0.012em;
+  font-variation-settings: "opsz" 144;
+}
+.thanks-card .org-sub {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.7rem, 0.85vw, 0.82rem);
+  color: var(--ink-muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.45;
+}
+
+/* Progress dots */
+.progress {
+  position: fixed;
+  bottom: clamp(0.8rem, 2vh, 1.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.45rem;
+  z-index: 10;
+}
+.progress .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.progress .dot.active {
+  background: var(--gold);
+  width: 22px;
+  border-radius: 3px;
+}
+
+.hint {
+  position: fixed;
+  bottom: clamp(1.4rem, 3vh, 2.2rem);
+  left: clamp(2rem, 6vw, 6.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.6rem, 0.78vw, 0.7rem);
+  color: var(--ink-muted);
+  letter-spacing: 0.14em;
+  opacity: 0.55;
+  z-index: 10;
+}
+
+/* === Team photos === */
+.team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.7rem, 1.4vh, 1.1rem);
+  padding-top: clamp(0.7rem, 1.4vh, 1.1rem);
+}
+.team-card .photo {
+  width: clamp(140px, 15vw, 210px);
+  height: clamp(140px, 15vw, 210px);
+  border-radius: 6px;
+  object-fit: cover;
+  border: 2px solid var(--green);
+  flex-shrink: 0;
+  background: var(--bg-deep);
+  box-shadow: 0 10px 26px -12px rgba(10, 79, 26, 0.3);
+}
+.team-card .meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+/* === Screenshot slide === */
+.screenshot-slide {
+  padding: 0;
+  flex-direction: row;
+}
+.screenshot-slide::after { display: none; }
+.screenshot-meta {
+  flex: 0 0 clamp(280px, 30vw, 440px);
+  padding: clamp(3rem, 6vh, 5rem) clamp(2rem, 3.5vw, 3.5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(0.8rem, 1.6vh, 1.2rem);
+  background: var(--bg);
+  position: relative;
+  z-index: 2;
+  border-right: 1px solid var(--line);
+}
+.screenshot-meta .phase-tag { margin-top: 0; margin-bottom: 0.5rem; }
+.screenshot-meta h3 {
+  font-family: 'Fraunces', serif;
+  font-weight: 500;
+  font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+  color: var(--green-deep);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  font-variation-settings: "opsz" 144;
+}
+.screenshot-meta p {
+  font-size: clamp(1.05rem, 1.25vw, 1.18rem);
+  line-height: 1.55;
+  color: var(--ink-muted);
+  max-width: 38ch;
+}
+.screenshot-meta .badge-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+}
+.screenshot-meta .badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.72rem, 0.88vw, 0.85rem);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--green);
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: var(--card-bg);
+}
+.screenshot-stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vh, 4rem) clamp(2rem, 3.5vw, 4rem);
+}
+.screenshot-stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    -68deg,
+    transparent 0,
+    transparent 14px,
+    var(--line) 14px,
+    var(--line) 15px
+  );
+  opacity: 0.35;
+  pointer-events: none;
+}
+.screenshot-stage img {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 24px 60px -22px rgba(10, 79, 26, 0.45), 0 8px 22px -10px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--line);
+}
+
+/* === Thanks logos === */
+.thanks-card .logo {
+  max-width: 100%;
+  max-height: clamp(50px, 8vh, 90px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  margin-bottom: clamp(0.5rem, 1vh, 0.8rem);
+}
+
+/* Smaller breakpoints */
+@media (max-width: 900px) {
+  .team-grid { grid-template-columns: repeat(2, 1fr); max-width: 100%; }
+  .mission-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+  .problem-layout { grid-template-columns: 1fr; gap: 1.5rem; }
+  .cap-grid, .cap-grid.six { grid-template-columns: repeat(2, 1fr); }
+  .pillars { grid-template-columns: 1fr; gap: 1.2rem; }
+  .cost-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+  .thanks-grid { grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+  .chain-row { grid-template-columns: 1fr; gap: 0.5rem; }
+}
+
+@media (max-width: 500px) {
+  .cap-grid, .cap-grid.six, .team-grid { grid-template-columns: 1fr; }
+  .thanks-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+  .reveal > * { opacity: 1; transform: none; }
+  .demo-slide .demo-text .live-dot { animation: none; opacity: 1; }
+}
+</style>
+</head>
+<body>
+<main>
+<div class="deck" id="deck">
+
+  <!-- 1: Title -->
+  <section class="slide title-slide reveal" aria-label="Title">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <div class="eyebrow">Mississippi Secretary of State · AI Innovation Hub</div>
+      <h1 class="reglex-mark">Regle<span class="x">x</span></h1>
+      <p class="sub">Phase 1 + Phase 2 readout. From a Mississippi-only chatbot to a multi-state legal research system.</p>
+      <div class="meta">
+        <span>04 / 21 / 2026</span>
+        <span>Proof of Concept</span>
+      </div>
+    </div>
+    <div class="slide-num">01 / 14</div>
+  </section>
+
+  <!-- 2: Team -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">The Team</div>
+    <h2 class="section-title">Six engineers.<br>One charter.</h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <img class="photo" src="Assests/bibas.png" alt="Bibas Kandel">
+        <div class="meta-block"><div class="num">01</div><div class="name">Bibas Kandel</div></div>
+      </div>
+      <div class="team-card">
+        <img class="photo" src="Assests/Gunjan.png" alt="Gunjan Sah">
+        <div class="meta-block"><div class="num">02</div><div class="name">Gunjan Sah</div></div>
+      </div>
+      <div class="team-card">
+        <img class="photo" src="Assests/Mandip.png" alt="Mandip Adhikari">
+        <div class="meta-block"><div class="num">03</div><div class="name">Mandip Adhikari</div></div>
+      </div>
+      <div class="team-card">
+        <img class="photo" src="Assests/Kapil.png" alt="Kapil Sharma">
+        <div class="meta-block"><div class="num">04</div><div class="name">Kapil Sharma</div></div>
+      </div>
+      <div class="team-card">
+        <img class="photo" src="Assests/Saleep.png" alt="Saleep Shrestha">
+        <div class="meta-block"><div class="num">05</div><div class="name">Saleep Shrestha</div></div>
+      </div>
+      <div class="team-card">
+        <img class="photo" src="Assests/aditya.png" alt="Aditya Sharma">
+        <div class="meta-block"><div class="num">06</div><div class="name">Aditya Sharma</div></div>
+      </div>
+    </div>
+    <div class="slide-num">02 / 14</div>
+  </section>
+
+  <!-- 3: Mission -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Mission</div>
+    <h2 class="section-title">What we set out to deliver.</h2>
+    <div class="mission-grid">
+      <div class="mission-pillar">
+        <div class="icon">A</div>
+        <h3>Accessibility</h3>
+        <p>Make complex statutory text searchable in plain English. No legal training required.</p>
+      </div>
+      <div class="mission-pillar">
+        <div class="icon">T</div>
+        <h3>Transparency</h3>
+        <p>Every answer ties back to the exact statute, section, and source document.</p>
+      </div>
+      <div class="mission-pillar">
+        <div class="icon">E</div>
+        <h3>Efficiency</h3>
+        <p>Cut the time it takes staff to verify authority from hours to seconds.</p>
+      </div>
+    </div>
+    <div class="slide-num">03 / 14</div>
+  </section>
+
+  <!-- 4: Problem -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">The Problem</div>
+    <h2 class="section-title">A small team. An unstoppable volume of regulation.</h2>
+    <div class="problem-layout">
+      <p class="problem-quote">"A limited policy staff faces an ever-increasing volume of new regulations, creating a critical bottleneck that strains internal capacity and introduces the risk of inconsistency in verifying statutory compliance."</p>
+      <div class="risks">
+        <div class="risk"><span class="marker"></span><span class="text">Operational strain on policy staff</span></div>
+        <div class="risk"><span class="marker"></span><span class="text">Inconsistent compliance verification</span></div>
+        <div class="risk"><span class="marker"></span><span class="text">Reduced transparency for stakeholders</span></div>
+        <div class="risk"><span class="marker"></span><span class="text">A widening scalability gap</span></div>
+      </div>
+    </div>
+    <div class="slide-num">04 / 14</div>
+  </section>
+
+  <!-- 5: Phase 1 — What We Built -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Phase 1 · What We Built</div>
+    <h2 class="section-title">Mississippi's first AI statutory research assistant.</h2>
+    <p class="lede">A private, internal tool that lets SoS staff ask questions in plain English and get back answers grounded in the exact statute.</p>
+    <div class="cap-grid">
+      <div class="cap-card">
+        <div class="num">01</div>
+        <h4>The Mississippi Knowledge Base</h4>
+        <p>Ingests and indexes Mississippi statutes and administrative regulations.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">02</div>
+        <h4>Grounded Answers</h4>
+        <p>Every response links back to the exact statutory authority and source text.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">03</div>
+        <h4>Plain-English Chat</h4>
+        <p>No legal-search syntax. No training. Ask the way you'd ask a colleague.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">04</div>
+        <h4>Audit-Ready Output</h4>
+        <p>Citations are pinned to the exact section, verifiable in seconds.</p>
+      </div>
+    </div>
+    <div class="slide-num">05 / 14</div>
+  </section>
+
+  <!-- 6: Phase 1 — In Action -->
+  <section class="slide screenshot-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="screenshot-meta">
+      <div class="phase-tag">Phase 1 · In Action</div>
+      <h3>Ask in plain English. Get back the exact statute.</h3>
+      <p>SoS staff type a regulatory question; the system answers with the statutory authority and section visible inline. No opaque outputs, no guesswork.</p>
+      <div class="badge-row">
+        <span class="badge">Mississippi corpus</span>
+        <span class="badge">Inline citations</span>
+        <span class="badge">Audit-ready</span>
+      </div>
+    </div>
+    <div class="screenshot-stage">
+      <img src="Assests/Phase1_screenshot.png" alt="Phase 1 chat interface showing a query and grounded answer with statutory citations">
+    </div>
+    <div class="slide-num"></div>
+  </section>
+
+  <!-- 7: Phase 1 Result -->
+  <section class="slide stat-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <div class="phase-tag" style="margin-top:0;">Phase 1 · Result</div>
+      <div class="stat-number">75<span class="pct">%+</span></div>
+      <p class="stat-headline">Cleared the contractual accuracy bar, with every answer paired to its source citation.</p>
+      <p class="stat-sub">Delivered as an internal tool for SoS staff. No public deployment, no opaque outputs, no guesswork.</p>
+    </div>
+    <div class="slide-num">06 / 14</div>
+  </section>
+
+  <!-- 7: Bridge -->
+  <section class="slide bridge-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <div class="phase-tag" style="margin-top:0;">From Phase 1 → Phase 2</div>
+      <p class="question">Mississippi doesn't write policy <span class="accent">in a vacuum.</span></p>
+      <p class="answer">How do our fees compare to Tennessee's? Are our agencies acting within the authority the legislature granted them? When another state quietly amends a regulation, how would we even know? Phase 2 was about answering those questions, without losing the citations.</p>
+    </div>
+    <div class="slide-num">07 / 14</div>
+  </section>
+
+  <!-- 8: Phase 2 Approach -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Phase 2 · Our Approach</div>
+    <h2 class="section-title">We extended Phase 1 in three directions.</h2>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pill-num">01</div>
+        <h3>Multi-State Coverage</h3>
+        <p>Expanded from Mississippi alone to seven states across the Southeast, focused on three regulated professions: medical, dental, and real estate.</p>
+      </div>
+      <div class="pillar">
+        <div class="pill-num">02</div>
+        <h3>Built to Stay Current</h3>
+        <p>Crawlers for all 21 official sources are in place today. The weekly auto-refresh and change-alert loop is designed end-to-end and ready to activate when the system is deployed to production.</p>
+      </div>
+      <div class="pillar">
+        <div class="pill-num">03</div>
+        <h3>Specialized Research Agents</h3>
+        <p>Beyond Q&amp;A, the system now compares, benchmarks, and synthesizes. It does not just look things up.</p>
+      </div>
+    </div>
+    <div class="slide-num">08 / 14</div>
+  </section>
+
+  <!-- 9: How It Stays Current -->
+  <section class="slide freshness-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">How It Stays Current</div>
+    <h2 class="section-title">From a regulator's website to your answer — in five steps.</h2>
+    <div class="freshness-flow">
+      <div class="flow-node">
+        <div class="step-num">Step 01</div>
+        <h4>Weekly Check-In</h4>
+        <p>Every Monday, the system wakes itself up and visits all 21 official regulator websites.</p>
+        <span class="flow-arrow">→</span>
+      </div>
+      <div class="flow-node">
+        <div class="step-num">Step 02</div>
+        <h4>Read &amp; Compare</h4>
+        <p>Reads each rule and compares it word-for-word with what we saw last week.</p>
+        <span class="flow-arrow">→</span>
+      </div>
+      <div class="flow-node">
+        <div class="step-num">Step 03</div>
+        <h4>Spot the Change</h4>
+        <p>Identifies what's new, what was amended, and what was repealed since the last visit.</p>
+        <span class="flow-arrow">→</span>
+      </div>
+      <div class="flow-node">
+        <div class="step-num">Step 04</div>
+        <h4>Update the Library</h4>
+        <p>Re-indexes anything that changed and removes rules that no longer exist.</p>
+        <span class="flow-arrow">→</span>
+      </div>
+      <div class="flow-node">
+        <div class="step-num">Step 05</div>
+        <h4>Notify the Team</h4>
+        <p>Sends a weekly summary: "3 new rules, 1 amended, 0 repealed" — so a human can verify.</p>
+      </div>
+    </div>
+    <div class="freshness-foot">
+      <div class="footcard">
+        <div class="ft-lbl">Built today</div>
+        <p>Steps 1 &amp; 2 — the crawlers that read all 21 sources.</p>
+      </div>
+      <div class="footcard">
+        <div class="ft-lbl">Ready to Activate</div>
+        <p>Steps 3, 4, 5 — the automation that turns reading into action. Architecture complete; activates on production deployment.</p>
+      </div>
+    </div>
+    <div class="slide-num">09 / 15</div>
+  </section>
+
+  <!-- 10: Phase 2 — What's New -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Phase 2 · What's New</div>
+    <h2 class="section-title">Six new ways to ask the question.</h2>
+    <div class="cap-grid six">
+      <div class="cap-card">
+        <div class="num">01</div>
+        <h4>Cross-State Comparison</h4>
+        <p>Side-by-side how seven states regulate medical, dental, and real estate licensing.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">02</div>
+        <h4>Fee &amp; Fine Benchmarking</h4>
+        <p>Compare licensing fees, fines, and renewals across jurisdictions in one query.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">03</div>
+        <h4>Term Frequency Analysis</h4>
+        <p>How often a phrase appears across the corpus, with the actual references attached.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">04</div>
+        <h4>Reciprocity Analysis</h4>
+        <p>Which states honor each other's licenses, and on what conditions.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">05</div>
+        <h4>Authority Overreach Detection</h4>
+        <p>Flags when an administrative rule may exceed the statutory authority granted to the agency.</p>
+      </div>
+      <div class="cap-card">
+        <div class="num">06</div>
+        <h4>Source Refresh Loop <span style="font-family:'JetBrains Mono',monospace; font-size:0.62em; color:var(--gold); letter-spacing:0.18em; margin-left:0.4em;">DESIGNED</span></h4>
+        <p>Crawlers in place for all 21 sources today. Weekly auto-refresh + change alerts designed end-to-end; activates on production deployment.</p>
+      </div>
+    </div>
+    <div class="slide-num">09 / 14</div>
+  </section>
+
+  <!-- 10: Phase 2 — In Action -->
+  <section class="slide screenshot-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="screenshot-meta">
+      <div class="phase-tag">Phase 2 · In Action</div>
+      <h3>One question. Seven states. Every claim still cited.</h3>
+      <p>The research view turns a single prompt into a structured cross-state answer: comparison tables, fee benchmarks, or authority chains depending on what was asked.</p>
+      <div class="badge-row">
+        <span class="badge">7 states</span>
+        <span class="badge">Medical · Dental · Real Estate</span>
+        <span class="badge">Same citation guarantee</span>
+      </div>
+    </div>
+    <div class="screenshot-stage">
+      <img src="Assests/phase_2.png" alt="Phase 2 research interface showing a multi-state comparison with citations">
+    </div>
+    <div class="slide-num"></div>
+  </section>
+
+  <!-- 11: Phase 2 Result -->
+  <section class="slide p2-result-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <div class="phase-tag" style="margin-top:0;">Phase 2 · Result</div>
+      <h2 class="section-title" style="margin-bottom:0.4rem;">Held to a higher bar.</h2>
+      <p class="lede" style="margin-bottom:0;">A 25-question multi-state evaluation, scored on four separate measures of trust — not just "did it sound right."</p>
+      <div class="p2-hero">
+        <div>
+          <div class="p2-headline-stat">8.0<span class="of-ten">/10</span></div>
+          <p class="p2-headline-label">For honesty about what it knows versus what it's guessing.</p>
+          <p class="p2-headline-sub">When the system extrapolates beyond the source, it now flags it — so reviewers see a guess as a guess, not a fact.</p>
+        </div>
+        <div class="p2-axis-list">
+          <div class="p2-axis-row">
+            <div class="ax-label">Right state, right law<span class="desc">Cited the correct jurisdiction's rule</span></div>
+            <div class="ax-score">8.8 / 10</div>
+          </div>
+          <div class="p2-axis-row">
+            <div class="ax-label">Honesty about guessing<span class="desc">Marked extrapolations as inferences</span></div>
+            <div class="ax-score">8.0 / 10</div>
+          </div>
+          <div class="p2-axis-row">
+            <div class="ax-label">Tied claims to a source<span class="desc">Each statement linked to a citation</span></div>
+            <div class="ax-score">6.6 / 10</div>
+          </div>
+          <div class="p2-axis-row">
+            <div class="ax-label">Substantively correct<span class="desc">Hardest measure — multi-state synthesis</span></div>
+            <div class="ax-score">5.6 / 10</div>
+          </div>
+        </div>
+      </div>
+      <p class="p2-result-foot">Strongest on questions about who has authority to act (9.2/10). Hardest on cross-state fee comparisons (5.2/10) — a calibration gap, not an architecture gap.</p>
+    </div>
+    <div class="slide-num">11 / 15</div>
+  </section>
+
+  <!-- 12: Scope · What's In, Where It Extends -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Scope · What's In, Where It Extends</div>
+    <h2 class="section-title" style="margin-bottom:0.4rem;">Honest about what we have — and where the architecture extends.</h2>
+    <p class="lede" style="margin-bottom:0;">A pilot has to draw a line somewhere. Here's where we drew ours, and where the same architecture takes you next.</p>
+    <div class="cost-detail-grid">
+      <div class="cost-detail-table pilot">
+        <div class="cost-detail-header">
+          <h3>In Scope Today</h3>
+          <span class="badge">Verified</span>
+        </div>
+        <ul class="scope-list">
+          <li>
+            <strong>7 states</strong>
+            Mississippi, Tennessee, Alabama, Georgia, Arkansas, Texas, Louisiana
+          </li>
+          <li>
+            <strong>3 agency types per state</strong>
+            Medical boards, dental boards, real estate commissions
+          </li>
+          <li>
+            <strong>21 official regulator pages monitored</strong>
+            One per state-agency combination
+          </li>
+          <li>
+            <strong>Source: each state's SoS portal</strong>
+            Administrative rules and the regulators that portal publicly links to
+          </li>
+        </ul>
+      </div>
+      <div class="cost-detail-table prod">
+        <div class="cost-detail-header">
+          <h3>Where The Architecture Extends</h3>
+          <span class="badge">Extensible</span>
+        </div>
+        <ul class="scope-list">
+          <li>
+            <strong>Direct board crawls</strong>
+            Advisory opinions, disciplinary records, internal board policies
+          </li>
+          <li>
+            <strong>State statute corpora</strong>
+            Unlocks the full authority-overreach detection capability
+          </li>
+          <li>
+            <strong>Additional agency types</strong>
+            Nursing, insurance, contractors, cosmetology, and more
+          </li>
+          <li>
+            <strong>Additional states</strong>
+            Beyond the Southeast pilot footprint
+          </li>
+        </ul>
+      </div>
+    </div>
+    <p class="cost-foot">Each agency we add costs roughly $30 to load and $50/mo to maintain — same economics as adding a state.</p>
+    <div class="slide-num">12 / 17</div>
+  </section>
+
+  <!-- 13: How It Fits Together -->
+  <section class="slide chain-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <div class="phase-tag" style="margin-top:0;">How It All Fits Together</div>
+      <h2 class="section-title">One system. Two layers.</h2>
+      <div class="chain">
+        <div class="chain-row">
+          <div class="lbl">Phase 1</div>
+          <div class="flow"><span class="tok">Ask</span> → grounded Mississippi answer with statutory citation</div>
+        </div>
+        <div class="chain-row">
+          <div class="lbl">Phase 2</div>
+          <div class="flow"><span class="tok">Ask</span> → multi-state research, cross-jurisdiction comparison, authority check. Every claim still cited.</div>
+        </div>
+      </div>
+      <p class="chain-foot">Phase 1 made Mississippi's law searchable. Phase 2 made it comparable.</p>
+    </div>
+    <div class="slide-num">10 / 14</div>
+  </section>
+
+  <!-- 11: Live Demo -->
+  <section class="slide demo-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="demo-text"><span class="live-dot"></span>Live Demo</div>
+    <div class="slide-num">11 / 14</div>
+  </section>
+
+  <!-- 13: Cost -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">What It Costs</div>
+    <h2 class="section-title">Two months. Seven states. Less than $800.</h2>
+    <div class="cost-grid">
+      <div class="cost-card">
+        <div class="lbl">Phase 2 · Total Spend</div>
+        <div class="amount"><span class="unit">$</span>751</div>
+        <div class="desc">All cloud costs from Feb 19 to Apr 19 — building, indexing, testing, and running the multi-state system. Verified directly from AWS billing.</div>
+      </div>
+      <div class="cost-card">
+        <div class="lbl">Steady-State · Per Month</div>
+        <div class="amount">~<span class="unit">$</span>375</div>
+        <div class="desc">What it costs to keep Phase 2 running once it's built — search index, AI model calls, document processing.</div>
+      </div>
+      <div class="cost-card">
+        <div class="lbl">Per State Covered</div>
+        <div class="amount">~<span class="unit">$</span>54</div>
+        <div class="desc">Monthly cost to add and maintain coverage of one additional state's regulatory corpus.</div>
+      </div>
+    </div>
+    <p class="cost-foot">Phase 2 added new capabilities, not new infrastructure. The same architecture from Phase 1 carries the entire seven-state system today.</p>
+    <div class="slide-num">13 / 15</div>
+  </section>
+
+  <!-- 14: Cost · Where It Goes -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">What It Costs · Where It Goes</div>
+    <h2 class="section-title" style="margin-bottom:0.4rem;">The same numbers, broken down.</h2>
+    <p class="lede" style="margin-bottom:0;">What we actually spent during the pilot — and what the system would cost to operate at full production scale.</p>
+    <div class="cost-detail-grid">
+      <div class="cost-detail-table pilot">
+        <div class="cost-detail-header">
+          <h3>Today · Pilot</h3>
+          <span class="badge">Verified · Feb 19 – Apr 19</span>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Search index<span class="sub">Always-on knowledge base</span></div>
+          <div class="amt">$215 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Development environment<span class="sub">Notebooks, dev tooling</span></div>
+          <div class="amt">~$70 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Document processing<span class="sub">Text extraction for 7 states (one-time, spread over pilot)</span></div>
+          <div class="amt">~$50 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">AI model usage<span class="sub">Question answering + evaluation runs</span></div>
+          <div class="amt">~$30 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Other services<span class="sub">Storage, support, misc.</span></div>
+          <div class="amt">~$10 / mo</div>
+        </div>
+        <div class="cost-line total">
+          <div class="lbl">Average per month</div>
+          <div class="amt">~$375</div>
+        </div>
+      </div>
+      <div class="cost-detail-table prod">
+        <div class="cost-detail-header">
+          <h3>Tomorrow · Production</h3>
+          <span class="badge">Estimate</span>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Search index<span class="sub">Same as today</span></div>
+          <div class="amt">$220 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">AI model calls<span class="sub">~10K staff questions per month</span></div>
+          <div class="amt">~$100 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Weekly source refresh<span class="sub">Re-crawl + re-index changed rules</span></div>
+          <div class="amt">~$50 / mo</div>
+        </div>
+        <div class="cost-line">
+          <div class="lbl">Other services<span class="sub">Public endpoint, request handler, storage</span></div>
+          <div class="amt">~$10 / mo</div>
+        </div>
+        <div class="cost-line total">
+          <div class="lbl">Estimated per month</div>
+          <div class="amt">~$380</div>
+        </div>
+      </div>
+    </div>
+    <p class="cost-foot">Pilot figures pulled directly from the AWS billing console. Production estimates assume routine staff usage and the weekly source-refresh loop.</p>
+    <div class="slide-num">14 / 16</div>
+  </section>
+
+  <!-- 15: Closing -->
+  <section class="slide closing-slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div>
+      <p class="quote">"Technology changes, but the duty of this office remains constant."</p>
+      <p class="quote-attr">Office of the Mississippi Secretary of State</p>
+      <p class="closing-tag">From a passive archive to an interactive research partner. Built in months, for less than a single staff salary, ready to extend.</p>
+      <p class="signature">Reglex</p>
+    </div>
+    <div class="slide-num">13 / 14</div>
+  </section>
+
+  <!-- 14: Thanks -->
+  <section class="slide reveal">
+    <div class="brand">REGLEX <span class="dot">·</span> SoS DEMO</div>
+    <div class="phase-tag">Special Thanks</div>
+    <h2 class="section-title">None of this happens alone.</h2>
+    <div class="thanks-grid">
+      <div class="thanks-card">
+        <img class="logo" src="Assests/usm_logo.png" alt="University of Southern Mississippi">
+        <div class="org-sub">University of<br>Southern Mississippi</div>
+      </div>
+      <div class="thanks-card">
+        <img class="logo" src="Assests/sos_logo.png" alt="Mississippi Secretary of State">
+        <div class="org-sub">Mississippi<br>Secretary of State</div>
+      </div>
+      <div class="thanks-card">
+        <img class="logo" src="Assests/AWS_Logo.png" alt="Amazon Web Services">
+        <div class="org-sub">Amazon<br>Web Services</div>
+      </div>
+      <div class="thanks-card">
+        <img class="logo" src="Assests/main_Logo.png" alt="Mississippi AI Network">
+        <div class="org-sub">Mississippi<br>AI Network</div>
+      </div>
+      <div class="thanks-card">
+        <img class="logo" src="Assests/its_logo.png" alt="MS Department of Information Technology Services">
+        <div class="org-sub">MS Dept. of<br>Information Tech.</div>
+      </div>
+    </div>
+    <div class="slide-num">14 / 14</div>
+  </section>
+
+</div>
+
+<div class="progress" id="progress" role="tablist" aria-label="Slide navigation"></div>
+<div class="hint">← → · SPACE · SCROLL · SWIPE</div>
+</main>
+
+<script>
+(function() {
+  const deck = document.getElementById('deck');
+  const slides = document.querySelectorAll('.slide');
+  const progress = document.getElementById('progress');
+  let current = 0;
+  let isAnimating = false;
+
+  const total = String(slides.length).padStart(2, '0');
+  slides.forEach((s, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', `Slide ${i + 1}`);
+    dot.addEventListener('click', () => goTo(i));
+    progress.appendChild(dot);
+
+    const num = s.querySelector('.slide-num');
+    if (num) num.textContent = `${String(i + 1).padStart(2, '0')} / ${total}`;
+  });
+
+  function update() {
+    deck.style.transform = `translateX(-${current * 100}vw)`;
+    document.querySelectorAll('.progress .dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+  }
+
+  function goTo(i) {
+    if (isAnimating) return;
+    if (i < 0 || i >= slides.length) return;
+    current = i;
+    isAnimating = true;
+    update();
+    setTimeout(() => { isAnimating = false; }, 700);
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault(); next();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault(); prev();
+    } else if (e.key === 'Home') {
+      e.preventDefault(); goTo(0);
+    } else if (e.key === 'End') {
+      e.preventDefault(); goTo(slides.length - 1);
+    }
+  });
+
+  let wheelLock = false;
+  document.addEventListener('wheel', (e) => {
+    if (wheelLock) return;
+    if (Math.abs(e.deltaY) < 30 && Math.abs(e.deltaX) < 30) return;
+    wheelLock = true;
+    if (e.deltaY > 0 || e.deltaX > 0) next();
+    else prev();
+    setTimeout(() => { wheelLock = false; }, 800);
+  }, { passive: true });
+
+  let touchStartX = 0, touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) next();
+      else prev();
+    }
+  }, { passive: true });
+
+  update();
+})();
+</script>
+</body>
+</html>
